@@ -9,6 +9,13 @@
     <link rel="stylesheet" href="bower_components/select2/dist/css/select2.min.css">
 
     <title>ММВБ</title>
+    <style>
+        /*table,
+        th,
+        td {
+            border: 1px solid black;
+        }*/
+    </style>
 </head>
 
 <body>
@@ -39,19 +46,153 @@
             </div>
 
         </div>
+        <div class="row">
+            <div class="col-md-12 table-row">
+                <table class="table table-bordered table-hover position-details-table">
+                    <col>
+                        <colgroup span="2"></colgroup>
+                        <colgroup span="2"></colgroup>
+                        <colgroup></colgroup>
+                    <thead>
+                            <tr>
+                                <td rowspan="2"></td>
+                                <th colspan="2" scope="colgroup">Физические лица</th>
+                                <th colspan="2" scope="colgroup">Юридические лица</th>
+                                <th rowspan="2" scope="colgroup">Совокупный объем открытых позиций</th>
+                            </tr>
+                            <tr>
+                                <th scope="col">Длинные позиции</th>
+                                <th scope="col">Короткие позиции</th>
+                                <th scope="col">Длинные позиции</th>
+                                <th scope="col">Короткие позиции</th>
+                            </tr>
+                        </thead>
+                        <tr>
+                            <th scope="row">Количество договоров (контрактов), шт.</th>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Относительное изменение количества договоров (контрактов) по отношению к предыдущему дню, в %</th>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Количество лиц, имеющих открытые позиции</th>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Изменение количества договоров (контрактов) по отношению к предыдущему дню, шт.</th>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+                </table>
+            </div>
+        </div>
     </div>
 
 
+    <!--
     <script type="text/template" class="feature-item-template-dd">
         <a href="#" class="name">
             <%= name %>
         </a>
     </script>
+-->
 
     <script type="text/template" class="feature-item-template-select">
-        <option value="<%= name %>">
+        <option value="<%= value %>">
             <%= name %>
         </option>
+    </script>
+
+    <script type="text/template" class="position-details">
+        <tr>
+            <th scope="row">Количество договоров (контрактов), шт.</th>
+            <td>
+                <%= fiz_long.position %>
+            </td>
+            <td>
+                <%= fiz_short.position %>
+            </td>
+            <td>
+                <%= jur_long.position %>
+            </td>
+            <td>
+                <%= jur_short.position %>
+            </td>
+            <td>
+                <%= total.position %>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">Изменение количества договоров (контрактов) по отношению к предыдущему дню, шт.</th>
+            <td>
+                <%= fiz_long.change_prev_week_abs %>
+            </td>
+            <td>
+                <%= fiz_short.change_prev_week_abs %>
+            </td>
+            <td>
+                <%= jur_long.change_prev_week_abs %>
+            </td>
+            <td>
+                <%= jur_short.change_prev_week_abs %>
+            </td>
+            <td>
+                <%= total.change_prev_week_abs %>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">Относительное изменение количества договоров (контрактов) по отношению к предыдущему дню, в %</th>
+            <td>
+                <%= (fiz_long.change_prev_week_perc*100).toFixed(2) %>
+            </td>
+            <td>
+                <%= (fiz_short.change_prev_week_perc*100).toFixed(2) %>
+            </td>
+            <td>
+                <%= (jur_long.change_prev_week_perc*100).toFixed(2) %>
+            </td>
+            <td>
+                <%= (jur_short.change_prev_week_perc*100).toFixed(2) %>
+            </td>
+            <td>
+                -
+                <!--<%= (total.change_prev_week_perc*100).toFixed(2) %>-->
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">Количество лиц, имеющих открытые позиции</th>
+            <td>
+                <%= fiz_long.clients %>
+            </td>
+            <td>
+                <%= fiz_short.clients %>
+            </td>
+            <td>
+                <%= jur_long.clients %>
+            </td>
+            <td>
+                <%= jur_short.clients %>
+            </td>
+            <td>
+                <%= total.clients %>
+            </td>
+        </tr>
     </script>
 
 </body>

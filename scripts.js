@@ -1,31 +1,6 @@
 'use strict';
 
 var app = {
-
-    Position: function (change_prev_week_abs, change_prev_week_perc, clients, position) {
-        this.change_prev_week_abs = change_prev_week_abs;
-        this.change_prev_week_perc = change_prev_week_perc;
-        this.clients = clients;
-        this.position = position;
-    },
-
-    ClientOpenPositions: function (data) {
-        //    this.name = data.name;
-        //    this.moment = data.moment;
-        this.short = new app.Position(
-            data.change_prev_week_short_abs,
-            data.change_prev_week_short_perc,
-            data.clients_in_short,
-            data.short_position
-        );
-        this.long = new app.Position(
-            data.change_prev_week_long_abs,
-            data.change_prev_week_long_perc,
-            data.clients_in_long,
-            data.long_position
-        );
-    },
-
     getFeatureName: function (name, contractType) {
         var name = name;
 
@@ -38,43 +13,47 @@ var app = {
         return name;
     },
 
-    OpenPositionsCtr: function () {
+    OpenPositions: function () {
         this.addPosition = function (position) {
             var isinkey = position.isin + '_' + position.contract_type;
             //        console.log(isinkey);
 
             if (this[isinkey] == null) {
-                this[isinkey] = {
+
+                this[isinkey] = new app.FeatureOpenPositions({
                     isin: position.isin,
                     name: app.getFeatureName(position.name, position.contract_type),
-                    moment: position.moment,
-                    fiz: null,
-                    jur: null,
-                    total: null
-                };
+                    moment: position.moment
+                });
             }
+
 
             if (position.iz_fiz == 1) {
-                this[isinkey].fiz = new app.ClientOpenPositions(position);
+                this[isinkey].set('fiz', new app.ClientsPositions({}, position));
             } else {
-                this[isinkey].jur = new app.ClientOpenPositions(position);
+                this[isinkey].set('jur', new app.ClientsPositions({}, position));
             }
 
-            if (this[isinkey].fiz && this[isinkey].jur) {
-                var fiz = this[isinkey].fiz;
-                var jur = this[isinkey].jur;
+            if (this[isinkey].get('fiz').get('filled') && this[isinkey].get('jur').get('filled')) {
+                var fiz = this[isinkey].get('fiz');
+                var jur = this[isinkey].get('jur');
 
-                this[isinkey].total = new app.Position(
-                    fiz.long.change_prev_week_abs + fiz.short.change_prev_week_abs + jur.short.change_prev_week_abs + jur.short.change_prev_week_abs,
+                var fiz_long = fiz.get('long').toJSON();
+                var jur_long = jur.get('long').toJSON();
+                var fiz_short = fiz.get('short').toJSON();
+                var jur_short = jur.get('short').toJSON();
 
-                    fiz.long.change_prev_week_perc + fiz.short.change_prev_week_perc + jur.short.change_prev_week_perc + jur.short.change_prev_week_perc,
+                if (isinkey == 'Si_F')
+                {
+                    var a = 1;
+                }
 
-                    fiz.long.clients + fiz.short.clients + jur.short.clients + jur.short.clients,
-
-                    fiz.long.position + fiz.short.position + jur.short.position + jur.short.position
-                );
-
-                //            console.log(this[isinkey]);
+                this[isinkey].set('total', new app.DirectionPositions({
+                    change_prev_week_abs:   fiz_long.change_prev_week_abs   + fiz_short.change_prev_week_abs    + jur_long.change_prev_week_abs    + jur_short.change_prev_week_abs,
+                    change_prev_week_perc:  fiz_long.change_prev_week_perc  + fiz_short.change_prev_week_perc   + jur_long.change_prev_week_perc   + jur_short.change_prev_week_perc,
+                    clients:                fiz_long.clients                + fiz_short.clients                 + jur_long.clients                 + jur_short.clients,
+                    position:               fiz_long.position               + fiz_short.position                + jur_long.position                + jur_short.position
+                }));
             }
         };
     },
@@ -82,38 +61,38 @@ var app = {
     openPositions: null,
 
     onCsvComplete: function (results) {
-        app.openPositions = new app.OpenPositionsCtr();
+        app.openPositions = new app.OpenPositions();
+
 
         _.each(results.data, function (elem) {
             //        features.push(elem);
-            //        console.log(elem);
+            //            console.log(elem);
             app.openPositions.addPosition(elem);
         });
 
         for (var key in app.openPositions) {
-            if (typeof (app.openPositions[key]) == 'function') {
+            if (typeof (app.openPositions[key]) !== 'function') {
+                // console.log(app.openPositions[key].toJSON());
 
-            } else {
-                app.featuresList.push({
-                    name: app.openPositions[key].name
+                app.featuresListRaw.push({
+                    id: key,
+                    text: app.openPositions[key].toJSON().name
                 });
-                //                console.log(app.openPositions[key]);
+                //                app.featuresList.push({
+                //                    name: app.openPositions[key].name,
+                //                    value: app.openPositions[key].isin
+                //                });
+                //                console.log({
+                //                    name: app.openPositions[key].name,
+                //                    value: app.openPositions[key].isin
+                //                });
                 //                app.featuresList.push(app.openPositions[key]);
             }
         }
 
-        app.featuresListView.render();
+        //app.featuresListView.render();
+        app.renderView();
     },
-
-    /*onCsvComplete1: function (results) {
-
-        _.each(results.data, function (elem) {
-            app.featuresList.push(elem);
-            console.log(elem);
-        });
-
-        featuresListView.render();
-    }*/
 
     loadMoexCsv: function (date, onComplete) {
         Papa.parse("http://moex.com/ru/derivatives/open-positions-csv.aspx?d=" + date + "&t=1", {
@@ -130,12 +109,15 @@ var app = {
             }
         });
 
-        app.renderView();
+
     },
 
+    controls: {},
+
     renderView: function () {
-        $(".select-features-list").select2({
-            placeholder: 'Выберите инструмент'
+        app.controls.dropdown = $(".select-features-list").select2({
+            placeholder: 'Выберите инструмент',
+            data: app.featuresListRaw
         });
 
         $('#sandbox-container input').datepicker({
@@ -155,30 +137,86 @@ var app = {
     }
 }
 
+
+//--------------
+// Models
+//--------------
+
+// Dropdown
 app.FeatureListItem = Backbone.Model.extend({
     defaults: {
+        value: '',
         name: ''
     }
 });
 
-/*var FeatureListItem = Backbone.Model.extend({
+// Short or Long positions
+app.DirectionPositions = Backbone.Model.extend({
     defaults: {
-        isinkey: '',
+        change_prev_week_abs: 0,
+        change_prev_week_perc: 0,
+        clients: 0,
+        position: 0
+    }
+});
+
+app.ClientsPositions = Backbone.Model.extend({
+    defaults: {
+        filled: false,
+        long: new app.DirectionPositions(),
+        short: new app.DirectionPositions()
+    },
+
+    initialize: function(attributes, options) {
+        if (options) {
+            // console.log(options.change_prev_week_short_abs);
+            this.set('short', new app.DirectionPositions({
+                change_prev_week_abs: options.change_prev_week_short_abs,
+                change_prev_week_perc: options.change_prev_week_short_perc,
+                clients: options.clients_in_lshort,
+                position: options.short_position
+            }));
+            this.set('long', new app.DirectionPositions({
+                change_prev_week_abs: options.change_prev_week_long_abs,
+                change_prev_week_perc: options.change_prev_week_long_perc,
+                clients: options.clients_in_long,
+                position: options.long_position
+            }));
+            this.set('filled', true);
+        }
+    }
+});
+
+// Table
+app.FeatureOpenPositions = Backbone.Model.extend({
+    defaults: {
         isin: '',
         name: '',
         moment: Date.now(),
-        fiz: {},
-        jur: {},
-        total: {}
+        fiz: new app.ClientsPositions(),
+        jur: new app.ClientsPositions(),
+        total: new app.DirectionPositions()
     }
-});*/
 
+});
+
+//--------------
+// Collections
+//--------------
+
+// Dropdown
 app.FeaturesList = Backbone.Collection.extend({});
-
 app.featuresList = new app.FeaturesList();
 
+app.featuresListRaw = [];
+
+//--------------
+// Views
+//--------------
+
+// Dropdown
 app.FeatureListItemView = Backbone.View.extend({
-    model: new app.FeatureListItem(),
+    //    model: new app.FeatureListItem(),
     tagName: 'option',
     initialize: function () {
         this.template = _.template($('.feature-item-template-select').html());
@@ -193,14 +231,13 @@ app.FeaturesListView = Backbone.View.extend({
     model: app.featuresList,
     el: $('.select-features-list'),
     initialize: function () {
-        //        console.log(this.el);
         var self = this;
-        //this.model.on('add', this.render, this);
     },
     render: function () {
         var self = this;
         this.$el.html('');
         _.each(this.model.toArray(), function (feature) {
+            //            console.log(feature.toJSON());
             var newEl = (new app.FeatureListItemView({
                 model: feature
             })).render().$el;
@@ -210,8 +247,34 @@ app.FeaturesListView = Backbone.View.extend({
     }
 });
 
-app.featuresListView = new app.FeaturesListView();
+//app.featuresListView = new app.FeaturesListView();
 
+// Table
+app.OpenPositionView = Backbone.View.extend({
+    el: $('.position-details-table'),
+    initialize: function () {
+        this.template = _.template($('.position-details').html());
+    },
+    render: function () {
+        //        var self = this;
+        // console.log(this.model);
+        // console.log(this.model.toJSON());
+        // this.$el.append(this.template(this.model.toJSON()));
+        this.$el.children('tbody').empty();
+        this.$el.children('tbody').html(this.template(
+            {
+                fiz_short: this.model.get('fiz').get('short').toJSON(),
+                fiz_long: this.model.get('fiz').get('long').toJSON(),
+                jur_short: this.model.get('jur').get('short').toJSON(),
+                jur_long: this.model.get('jur').get('long').toJSON(),
+                total: this.model.get('total').toJSON()
+            }
+        ));
+        return this;
+    }
+});
+
+// Application
 app.AppView = Backbone.View.extend({
     el: $('.container'),
     initialize: function () {
@@ -221,8 +284,14 @@ app.AppView = Backbone.View.extend({
         'click #show-btn': 'showOpenPositions'
     },
     showOpenPositions: function (e) {
-        alert(moment().format('YYYYMMDD'));
-
+        var key = app.controls.dropdown.val();
+        // console.log(key);
+        //        alert(moment().format('YYYYMMDD'));
+        console.log(app.openPositions);
+        // console.log(app.openPositions[key]);
+        new app.OpenPositionView({
+            model: app.openPositions[key]
+        }).render();
     }
 });
 
@@ -230,4 +299,5 @@ app.appView = new app.AppView();
 
 $(document).ready(
     app.loadData()
+    //    app.renderView()
 );
