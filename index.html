@@ -3,37 +3,18 @@
 
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
     <link id="bs-css" rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
     <link id="bsdp-css" rel="stylesheet" href="bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker3.min.css">
     <link rel="stylesheet" href="bower_components/select2/dist/css/select2.min.css">
 
     <title>ММВБ</title>
-    <style>
-        /*table,
-        th,
-        td {
-            border: 1px solid black;
-        }*/
-    </style>
 </head>
 
 <body>
     <div class="container">
         <div class="row">
             <div class="col-md-9">
-                <!--
-<div class="dropdown">
-    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Dropdown Example
-        <span class="caret"></span></button>
-    <ul class="dropdown-menu">
-        <li><a href="#">HTML</a></li>
-        <li><a href="#">CSS</a></li>
-        <li><a href="#">JavaScript</a></li>
-    </ul>
-</div>
--->
-
 
                 <select class="select-features-list" style="width: 100%">
                 </select>
@@ -102,16 +83,12 @@
                 </table>
             </div>
         </div>
+        <div class="row">
+            <div class="col-md-12 chart-area">
+                <canvas id="myChart" width="400" height="400"></canvas>
+            </div>
+        </div>
     </div>
-
-
-    <!--
-    <script type="text/template" class="feature-item-template-dd">
-        <a href="#" class="name">
-            <%= name %>
-        </a>
-    </script>
--->
 
     <script type="text/template" class="feature-item-template-select">
         <option value="<%= value %>">
@@ -206,6 +183,8 @@
 <script src="bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
 <script src="bower_components/bootstrap-datepicker/dist/locales/bootstrap-datepicker.ru.min.js" charset="UTF-8"></script>
 <script src="bower_components/moment/min/moment.min.js"></script>
-<script src="scripts.js"></script>
+<script src="bower_components/chart.js/dist/Chart.min.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/scripts.js"></script>
 
 </html>
