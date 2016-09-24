@@ -1,5 +1,3 @@
-var ctx = $("#myChart");
-
 var data = {
     labels: ["January", "February", "March", "April", "May", "June", "July"],
     datasets: [
@@ -28,7 +26,54 @@ var data = {
     ]
 };
 
-var chart = new Chart(ctx, {
-    type: 'line',
-    data: data
-});
+
+var getPieData = function (long, short) {
+    return {
+        labels: [
+            "Длинные позиции",
+            "Короткие позиции"
+        ],
+        datasets: [
+            {
+                label: 'Физические лица',
+                data: [long, short],
+                backgroundColor: [
+                    "#FF6384",
+                    "#36A2EB"
+                ],
+                hoverBackgroundColor: [
+                    "#FF6384",
+                    "#36A2EB"
+                ]
+            }]
+    }
+};
+
+
+var ChartMan = {
+
+    // Chart Drawing Area
+    fizPositionCtx: $("#fizPositionChart"),
+    jurPositionCtx: $("#jurPositionChart"),
+
+    // Drawing function
+    drawChart: function (featureData) {
+        if (featureData) {
+
+            var fiz_short = featureData.get('fiz').get('short').toJSON();
+            var fiz_long = featureData.get('fiz').get('long').toJSON();
+            var jur_short = featureData.get('jur').get('short').toJSON();
+            var jur_long = featureData.get('jur').get('long').toJSON();
+
+            var fizChart = new Chart(this.fizPositionCtx, {
+                type: 'pie',
+                data: getPieData(fiz_long.position, fiz_short.position)
+            });
+
+            var jurChart = new Chart(this.jurPositionCtx, {
+                type: 'pie',
+                data: getPieData(jur_long.position, jur_short.position)
+            });
+        }
+    }
+}

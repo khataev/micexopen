@@ -16,7 +16,6 @@ var app = {
     OpenPositions: function () {
         this.addPosition = function (position) {
             var isinkey = position.isin + '_' + position.contract_type;
-            //        console.log(isinkey);
 
             if (this[isinkey] == null) {
 
@@ -43,16 +42,15 @@ var app = {
                 var fiz_short = fiz.get('short').toJSON();
                 var jur_short = jur.get('short').toJSON();
 
-                if (isinkey == 'Si_F')
-                {
+                if (isinkey == 'Si_F') {
                     var a = 1;
                 }
 
                 this[isinkey].set('total', new app.DirectionPositions({
-                    change_prev_week_abs:   fiz_long.change_prev_week_abs   + fiz_short.change_prev_week_abs    + jur_long.change_prev_week_abs    + jur_short.change_prev_week_abs,
-                    change_prev_week_perc:  fiz_long.change_prev_week_perc  + fiz_short.change_prev_week_perc   + jur_long.change_prev_week_perc   + jur_short.change_prev_week_perc,
-                    clients:                fiz_long.clients                + fiz_short.clients                 + jur_long.clients                 + jur_short.clients,
-                    position:               fiz_long.position               + fiz_short.position                + jur_long.position                + jur_short.position
+                    change_prev_week_abs: fiz_long.change_prev_week_abs + fiz_short.change_prev_week_abs + jur_long.change_prev_week_abs + jur_short.change_prev_week_abs,
+                    change_prev_week_perc: fiz_long.change_prev_week_perc + fiz_short.change_prev_week_perc + jur_long.change_prev_week_perc + jur_short.change_prev_week_perc,
+                    clients: fiz_long.clients + fiz_short.clients + jur_long.clients + jur_short.clients,
+                    position: fiz_long.position + fiz_short.position + jur_long.position + jur_short.position
                 }));
             }
         };
@@ -65,8 +63,6 @@ var app = {
 
 
         _.each(results.data, function (elem) {
-            //        features.push(elem);
-            //            console.log(elem);
             app.openPositions.addPosition(elem);
         });
 
@@ -78,34 +74,23 @@ var app = {
                     id: key,
                     text: app.openPositions[key].toJSON().name
                 });
-                //                app.featuresList.push({
-                //                    name: app.openPositions[key].name,
-                //                    value: app.openPositions[key].isin
-                //                });
-                //                console.log({
-                //                    name: app.openPositions[key].name,
-                //                    value: app.openPositions[key].isin
-                //                });
-                //                app.featuresList.push(app.openPositions[key]);
             }
         }
-
-        //app.featuresListView.render();
-        app.renderView();
     },
 
-    loadMoexCsv: function (date, onComplete) {
+    loadMoexCsv: function (date, onComplete, onRender) {
         Papa.parse("http://moex.com/ru/derivatives/open-positions-csv.aspx?d=" + date + "&t=1", {
             delimiter: ",",
             download: true,
             header: true,
             dynamicTyping: true,
-            //            complete: onComplete(results)
+            // complete: onComplete
             /*complete: function (results) {
-                app.onCsvComplete(results);
-            }*/
+             app.onCsvComplete(results);
+             }*/
             complete: function (results) {
                 onComplete(results);
+                onRender();
             }
         });
 
@@ -120,7 +105,9 @@ var app = {
             data: app.featuresListRaw
         });
 
-        $('#sandbox-container input').datepicker({
+        $(".select-features-list").val('Si_F').trigger('change');
+
+        $('#datepicker').datepicker({
             format: "dd.mm.yyyy",
             weekStart: 1,
             todayBtn: "linked",
@@ -129,11 +116,15 @@ var app = {
             daysOfWeekDisabled: "0,6",
             language: 'ru'
         });
+        var yest = new Date();
+        yest.setDate(yest.getDate() - 1);
+
+        $('#datepicker').datepicker('setDate', yest);
+        $('#datepicker').datepicker('update');
     },
 
-    loadData: function () {
-        // Initial dropdown fill
-        app.loadMoexCsv(moment().subtract(1, 'days').format('YYYYMMDD'), app.onCsvComplete);
+    loadData: function (moment, renderFunction) {
+        app.loadMoexCsv(moment.format('YYYYMMDD'), app.onCsvComplete, renderFunction);
     }
 }
 
@@ -167,7 +158,7 @@ app.ClientsPositions = Backbone.Model.extend({
         short: new app.DirectionPositions()
     },
 
-    initialize: function(attributes, options) {
+    initialize: function (attributes, options) {
         if (options) {
             // console.log(options.change_prev_week_short_abs);
             this.set('short', new app.DirectionPositions({
@@ -279,25 +270,30 @@ app.AppView = Backbone.View.extend({
     el: $('.container'),
     initialize: function () {
         this.showBtn = this.$('#show-btn')
+
     },
     events: {
         'click #show-btn': 'showOpenPositions'
     },
     showOpenPositions: function (e) {
-        var key = app.controls.dropdown.val();
-        // console.log(key);
-        //        alert(moment().format('YYYYMMDD'));
-        console.log(app.openPositions);
-        // console.log(app.openPositions[key]);
-        new app.OpenPositionView({
-            model: app.openPositions[key]
-        }).render();
+
+        var onRender = function() {
+            var key = app.controls.dropdown.val();
+
+            new app.OpenPositionView({
+                model: app.openPositions[key]
+            }).render();
+
+            ChartMan.drawChart(app.openPositions[key]);
+        };
+
+        app.loadData(moment($('#datepicker').val(), 'DD.MM.YYYY'), onRender);
     }
 });
 
 app.appView = new app.AppView();
 
 $(document).ready(
-    app.loadData()
-    //    app.renderView()
+    // TODO: Load data on page load
+    app.loadData(moment().subtract(1, 'days'), app.renderView)
 );
