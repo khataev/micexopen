@@ -99,7 +99,7 @@ var app = {
 
     controls: {},
 
-    renderView: function () {
+    initView: function () {
         app.controls.dropdown = $(".select-features-list").select2({
             placeholder: 'Выберите инструмент',
             data: app.featuresListRaw
@@ -116,11 +116,16 @@ var app = {
             daysOfWeekDisabled: "0,6",
             language: 'ru'
         });
-        var yest = new Date();
-        yest.setDate(yest.getDate() - 1);
 
-        $('#datepicker').datepicker('setDate', yest);
+        $('#datepicker').datepicker('setDate', app.getPreviousTradingDay().toDate());
         $('#datepicker').datepicker('update');
+
+        $('.position-details-table tbody tr').click(function () {
+            // if ($(this).data('name'))
+            console.log(this.model);
+            // alert($(this).data('name'));
+            // ChartMan.drawChart2(app.openPositions[key]);
+        });
     },
 
     loadData: function (moment, renderFunction) {
@@ -238,7 +243,33 @@ app.FeaturesListView = Backbone.View.extend({
     }
 });
 
-//app.featuresListView = new app.FeaturesListView();
+// Transforms FeatureOpenPositions into table's row like data
+app.transformPositionsData = function (positionsModel) {
+    var fiz_short = positionsModel.get('fiz').get('short').toJSON();
+    var fiz_long = positionsModel.get('fiz').get('long').toJSON();
+    var jur_short = positionsModel.get('jur').get('short').toJSON();
+    var jur_long = positionsModel.get('jur').get('long').toJSON();
+    var total = positionsModel.get('total').toJSON();
+
+    var data = {};
+
+    function makeRow(fiz_long, fiz_short, jur_long, jur_short) {
+        return {
+            fiz_long: fiz_long,
+            fiz_short: fiz_short,
+            jur_long: jur_long,
+            jur_short: jur_short,
+            total: fiz_long + fiz_short + jur_long + jur_short
+        }
+    }
+
+    data.position = makeRow(fiz_long.position, fiz_short.position, jur_long.position, jur_short.position);
+    data.change_prev_week_abs = makeRow(fiz_long.change_prev_week_abs, fiz_short.change_prev_week_abs, jur_long.change_prev_week_abs, jur_short.change_prev_week_abs);
+    data.change_prev_week_perc = makeRow(fiz_long.change_prev_week_perc, fiz_short.change_prev_week_perc, jur_long.change_prev_week_perc, jur_short.change_prev_week_perc);
+    data.clients = makeRow(fiz_long.clients, fiz_short.clients, jur_long.clients, jur_short.clients);
+
+    return data;
+};
 
 // Table
 app.OpenPositionView = Backbone.View.extend({
@@ -247,23 +278,46 @@ app.OpenPositionView = Backbone.View.extend({
         this.template = _.template($('.position-details').html());
     },
     render: function () {
-        //        var self = this;
-        // console.log(this.model);
-        // console.log(this.model.toJSON());
-        // this.$el.append(this.template(this.model.toJSON()));
+
+        var data = app.transformPositionsData(this.model);
+
+        var mdata = _.extend({pos: data}, app.viewHelpers);
         this.$el.children('tbody').empty();
-        this.$el.children('tbody').html(this.template(
-            {
-                fiz_short: this.model.get('fiz').get('short').toJSON(),
-                fiz_long: this.model.get('fiz').get('long').toJSON(),
-                jur_short: this.model.get('jur').get('short').toJSON(),
-                jur_long: this.model.get('jur').get('long').toJSON(),
-                total: this.model.get('total').toJSON()
-            }
-        ));
+        // this.$el.children('tbody').html(this.template({pos: data}));
+        this.$el.children('tbody').html(this.template(mdata));
+        // this.$el.children('tbody').html(this.template(
+        //     {
+        //         fiz_short: this.model.get('fiz').get('short').toJSON(),
+        //         fiz_long: this.model.get('fiz').get('long').toJSON(),
+        //         jur_short: this.model.get('jur').get('short').toJSON(),
+        //         jur_long: this.model.get('jur').get('long').toJSON(),
+        //         total: this.model.get('total').toJSON()
+        //     }
+        // ));
+
+        var clickHandler = function (event) {
+            var row_data = event.data.pos[$(this).data('name')];
+            ChartMan.drawChart2(row_data);
+        }
+
+        // Binds handler on table's row click
+        $('.position-details-table tbody tr').on('click', {pos: data}, clickHandler);
         return this;
     }
 });
+
+// Helpers for View
+app.viewHelpers = {
+    numberFormat: function (number) {
+        return s.numberFormat(number, 0, ',', ' ');
+    },
+    numberFormat2: function (number) {
+        return s.numberFormat(number, 2, ',', ' ');
+    },
+    numberFormatPerc: function (number) {
+        return s.numberFormat(number*100, 2, ',', ' ');
+    }
+};
 
 // Application
 app.AppView = Backbone.View.extend({
@@ -277,14 +331,18 @@ app.AppView = Backbone.View.extend({
     },
     showOpenPositions: function (e) {
 
-        var onRender = function() {
+        var onRender = function () {
             var key = app.controls.dropdown.val();
+
 
             new app.OpenPositionView({
                 model: app.openPositions[key]
             }).render();
 
-            ChartMan.drawChart(app.openPositions[key]);
+            var data = app.transformPositionsData(app.openPositions[key]);
+
+            // ChartMan.drawChart(app.openPositions[key]);
+            ChartMan.drawChart2(data.position);
         };
 
         app.loadData(moment($('#datepicker').val(), 'DD.MM.YYYY'), onRender);
@@ -293,7 +351,24 @@ app.AppView = Backbone.View.extend({
 
 app.appView = new app.AppView();
 
+app.getPreviousTradingDay = function () {
+    var day;
+    switch (moment().day()) {
+        case 0:
+            day = moment().subtract(2, 'days');
+            break;
+        case 1:
+            day = moment().subtract(3, 'days');
+            break;
+        default:
+            day = moment().subtract(1, 'days');
+            break;
+    }
+
+    return day;
+}
+
 $(document).ready(
     // TODO: Load data on page load
-    app.loadData(moment().subtract(1, 'days'), app.renderView)
+    app.loadData(app.getPreviousTradingDay(), app.initView)
 );

@@ -17,3 +17,7 @@
 .chart-row {
     height: 400px;
 }
+
+.table td.rightCell {
+    text-align: right;
+}

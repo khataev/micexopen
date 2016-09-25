@@ -49,6 +49,14 @@ var getPieData = function (long, short) {
     }
 };
 
+function pieOptions() {
+    return {
+        title: {
+            display: true,
+            text: ''
+        }
+    }
+}
 
 var ChartMan = {
 
@@ -56,7 +64,12 @@ var ChartMan = {
     fizPositionCtx: $("#fizPositionChart"),
     jurPositionCtx: $("#jurPositionChart"),
 
+    fiz_chart: null,
+    jur_chart: null,
+
     // Drawing function
+
+    // Input data - FeatureOpenPositions model
     drawChart: function (featureData) {
         if (featureData) {
 
@@ -65,14 +78,56 @@ var ChartMan = {
             var jur_short = featureData.get('jur').get('short').toJSON();
             var jur_long = featureData.get('jur').get('long').toJSON();
 
-            var fizChart = new Chart(this.fizPositionCtx, {
+            new Chart(this.fizPositionCtx, {
                 type: 'pie',
-                data: getPieData(fiz_long.position, fiz_short.position)
+                data: getPieData(fiz_long.position, fiz_short.position),
+                options: {
+                    title: {
+                        display: true,
+                        text: 'Физические лица'
+                    }
+                }
             });
 
-            var jurChart = new Chart(this.jurPositionCtx, {
+            new Chart(this.jurPositionCtx, {
                 type: 'pie',
-                data: getPieData(jur_long.position, jur_short.position)
+                data: getPieData(jur_long.position, jur_short.position),
+                options: {
+                    title: {
+                        display: true,
+                        text: 'Юридические лица'
+                    }
+                }
+            });
+        }
+    },
+
+    // Input data - table row data
+    drawChart2: function (row_data) {
+        if (row_data) {
+
+            if (this.fiz_chart)
+                this.fiz_chart.clear();
+
+            if (this.jur_chart)
+                this.jur_chart.clear();
+
+            var fiz_options = pieOptions();
+            fiz_options.title.text = 'Физические лица';
+
+            var jur_options = pieOptions();
+            jur_options.title.text = 'Юридические лица';
+
+            this.fiz_chart = new Chart(this.fizPositionCtx, {
+                type: 'pie',
+                data: getPieData(row_data.fiz_long, row_data.fiz_short),
+                options: fiz_options
+            });
+
+            this.jur_chart = new Chart(this.jurPositionCtx, {
+                type: 'pie',
+                data: getPieData(row_data.jur_long, row_data.jur_short),
+                options: jur_options
             });
         }
     }

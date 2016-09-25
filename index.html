@@ -99,78 +99,78 @@
         </option>
     </script>
 
+    <!-- TODO: Think how to manage only data-name -->
     <script type="text/template" class="position-details">
-        <tr>
+        <tr data-name="position">
             <th scope="row">Количество договоров (контрактов), шт.</th>
-            <td>
-                <%= fiz_long.position %>
+            <td class="rightCell">
+                <%= numberFormat(pos['position'].fiz_long) %>
+            </td>
+            <td class="rightCell">
+                <%= numberFormat(pos['position'].fiz_short) %>
             </td>
             <td>
-                <%= fiz_short.position %>
+                <%= numberFormat(pos['position'].jur_long) %>
             </td>
-            <td>
-                <%= jur_long.position %>
+            <td class="rightCell">
+                <%= numberFormat(pos['position'].jur_short) %>
             </td>
-            <td>
-                <%= jur_short.position %>
-            </td>
-            <td>
-                <%= total.position %>
+            <td class="rightCell">
+                <%= numberFormat(pos['position'].total) %>
             </td>
         </tr>
-        <tr>
+        <tr data-name="change_prev_week_abs">
             <th scope="row">Изменение количества договоров (контрактов) по отношению к предыдущему дню, шт.</th>
-            <td>
-                <%= fiz_long.change_prev_week_abs %>
+            <td class="rightCell">
+                <%= numberFormat(pos['change_prev_week_abs'].fiz_long) %>
             </td>
-            <td>
-                <%= fiz_short.change_prev_week_abs %>
+            <td class="rightCell">
+                <%= numberFormat(pos['change_prev_week_abs'].fiz_short) %>
             </td>
-            <td>
-                <%= jur_long.change_prev_week_abs %>
+            <td class="rightCell">
+                <%= numberFormat(pos['change_prev_week_abs'].jur_long) %>
             </td>
-            <td>
-                <%= jur_short.change_prev_week_abs %>
+            <td class="rightCell">
+                <%= numberFormat(pos['change_prev_week_abs'].jur_short) %>
             </td>
-            <td>
-                <%= total.change_prev_week_abs %>
+            <td class="rightCell">
+                <%= numberFormat(pos['change_prev_week_abs'].total) %>
             </td>
         </tr>
-        <tr>
+        <tr data-name="change_prev_week_perc">
             <th scope="row">Относительное изменение количества договоров (контрактов) по отношению к предыдущему дню, в %</th>
-            <td>
-                <%= (fiz_long.change_prev_week_perc*100).toFixed(2) %>
+            <td class="rightCell">
+                <%= numberFormatPerc(pos['change_prev_week_perc'].fiz_long) %>
             </td>
-            <td>
-                <%= (fiz_short.change_prev_week_perc*100).toFixed(2) %>
+            <td class="rightCell">
+                <%= numberFormatPerc(pos['change_prev_week_perc'].fiz_short) %>
             </td>
-            <td>
-                <%= (jur_long.change_prev_week_perc*100).toFixed(2) %>
+            <td class="rightCell">
+                <%= numberFormatPerc(pos['change_prev_week_perc'].jur_long) %>
             </td>
-            <td>
-                <%= (jur_short.change_prev_week_perc*100).toFixed(2) %>
+            <td class="rightCell">
+                <%= numberFormatPerc(pos['change_prev_week_perc'].jur_short) %>
             </td>
-            <td>
-                -
-                <!--<%= (total.change_prev_week_perc*100).toFixed(2) %>-->
+            <td class="rightCell">
+                <%= numberFormatPerc(pos['change_prev_week_abs'].total / pos['position'].total ) %>
             </td>
         </tr>
-        <tr>
+        <tr data-name="clients">
             <th scope="row">Количество лиц, имеющих открытые позиции</th>
-            <td>
-                <%= fiz_long.clients %>
+            <td class="rightCell">
+                <%= numberFormat(pos['clients'].fiz_long) %>
             </td>
-            <td>
-                <%= fiz_short.clients %>
+            <td class="rightCell">
+                <%= numberFormat(pos['clients'].fiz_short) %>
             </td>
-            <td>
-                <%= jur_long.clients %>
+            <td class="rightCell">
+                <%= numberFormat(pos['clients'].jur_long) %>
             </td>
-            <td>
-                <%= jur_short.clients %>
+            <td class="rightCell">
+                <%= numberFormat(pos['clients'].jur_short) %>
             </td>
-            <td>
-                <%= total.clients %>
+            <td class="rightCell">
+                <%= numberFormat(pos['clients'].total) %>
             </td>
         </tr>
     </script>
@@ -179,6 +179,7 @@
 
 <script src="bower_components/jquery/dist/jquery.js"></script>
 <script src="bower_components/underscore/underscore.js"></script>
+<script src="bower_components/underscore.string/dist/underscore.string.min.js"></script>
 <script src="bower_components/backbone/backbone.js"></script>
 <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 <script src="bower_components/select2/dist/js/select2.min.js"></script>
