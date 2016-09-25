@@ -36,7 +36,7 @@ var getPieData = function (long, short) {
         datasets: [
             {
                 label: 'Физические лица',
-                data: [long, short],
+                data: [Math.abs(long), Math.abs(short)],
                 backgroundColor: [
                     "#FF6384",
                     "#36A2EB"
