@@ -107,10 +107,10 @@ var ChartMan = {
         if (row_data) {
 
             if (this.fiz_chart)
-                this.fiz_chart.clear();
+                this.fiz_chart.destroy();
 
             if (this.jur_chart)
-                this.jur_chart.clear();
+                this.jur_chart.destroy();
 
             var fiz_options = pieOptions();
             fiz_options.title.text = 'Физические лица';
