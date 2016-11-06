@@ -1,134 +1,272 @@
-var data = {
-    labels: ["January", "February", "March", "April", "May", "June", "July"],
-    datasets: [
-        {
-            label: "My First dataset",
-            fill: false,
-            lineTension: 0.1,
-            backgroundColor: "rgba(75,192,192,0.4)",
-            borderColor: "rgba(75,192,192,1)",
-            borderCapStyle: 'butt',
-            borderDash: [],
-            borderDashOffset: 0.0,
-            borderJoinStyle: 'miter',
-            pointBorderColor: "rgba(75,192,192,1)",
-            pointBackgroundColor: "#fff",
-            pointBorderWidth: 1,
-            pointHoverRadius: 5,
-            pointHoverBackgroundColor: "rgba(75,192,192,1)",
-            pointHoverBorderColor: "rgba(220,220,220,1)",
-            pointHoverBorderWidth: 2,
-            pointRadius: 1,
-            pointHitRadius: 10,
-            data: [65, 59, 80, 81, 56, 55, 40],
-            spanGaps: false,
-        }
-    ]
-};
-
-
-var getPieData = function (long, short) {
-    return {
-        labels: [
-            "Длинные позиции",
-            "Короткие позиции"
-        ],
-        datasets: [
-            {
-                label: 'Физические лица',
-                data: [Math.abs(long), Math.abs(short)],
-                backgroundColor: [
-                    "#FF6384",
-                    "#36A2EB"
-                ],
-                hoverBackgroundColor: [
-                    "#FF6384",
-                    "#36A2EB"
-                ]
-            }]
-    }
-};
-
-function pieOptions() {
-    return {
-        title: {
-            display: true,
-            text: ''
-        }
-    }
-}
-
-var ChartMan = {
-
-    // Chart Drawing Area
-    fizPositionCtx: $("#fizPositionChart"),
-    jurPositionCtx: $("#jurPositionChart"),
-
-    fiz_chart: null,
-    jur_chart: null,
-
-    // Drawing function
-
-    // Input data - FeatureOpenPositions model
-    drawChart: function (featureData) {
-        if (featureData) {
-
-            var fiz_short = featureData.get('fiz').get('short').toJSON();
-            var fiz_long = featureData.get('fiz').get('long').toJSON();
-            var jur_short = featureData.get('jur').get('short').toJSON();
-            var jur_long = featureData.get('jur').get('long').toJSON();
-
-            new Chart(this.fizPositionCtx, {
-                type: 'pie',
-                data: getPieData(fiz_long.position, fiz_short.position),
-                options: {
-                    title: {
-                        display: true,
-                        text: 'Физические лица'
-                    }
-                }
-            });
-
-            new Chart(this.jurPositionCtx, {
-                type: 'pie',
-                data: getPieData(jur_long.position, jur_short.position),
-                options: {
-                    title: {
-                        display: true,
-                        text: 'Юридические лица'
-                    }
-                }
-            });
+var charts = {
+    // Формирование данных для графика открытых позиций на дату
+    getPieData: function (long, short) {
+        return {
+            labels: [
+                "Длинные позиции",
+                "Короткие позиции"
+            ],
+            datasets: [
+                {
+                    label: 'Физические лица',
+                    data: [Math.abs(long), Math.abs(short)],
+                    backgroundColor: [
+                        "#FF6384",
+                        "#36A2EB"
+                    ],
+                    hoverBackgroundColor: [
+                        "#FF6384",
+                        "#36A2EB"
+                    ]
+                }]
         }
     },
 
-    // Input data - table row data
-    drawChart2: function (row_data) {
-        if (row_data) {
+    // Настройки для графика открытых позиций на дату
+    pieOptions: function () {
+        return {
+            title: {
+                display: true,
+                text: ''
+            }
+        }
+    },
 
-            if (this.fiz_chart)
-                this.fiz_chart.destroy();
+    ChartMan: {
 
-            if (this.jur_chart)
-                this.jur_chart.destroy();
+        // Ссылки на рабочие области графиков
+        fizPositionCtx: $("#fizPositionChart"),
+        jurPositionCtx: $("#jurPositionChart"),
+        currencyRatesCtx: $("#currencyRatesChart"),
+        openPositionsDynamicsCtx: $("#openPositionsDynamicsChart"),
 
-            var fiz_options = pieOptions();
-            fiz_options.title.text = 'Физические лица';
+        // Ссылки на объекты графиков
+        fizChart: null,
+        jurChart: null,
+        currencyRatesChart: null,
+        openPositionsDynamicsChart: null,
 
-            var jur_options = pieOptions();
-            jur_options.title.text = 'Юридические лица';
+        // Изначальные данные для графика за период
+        dynamicDatasets: [
+            {
+                label: 'Контракты физлиц',
+                borderColor: "rgba(75,192,192,1)",
+                backgroundColor: "rgba(75,235,230,0.1)",
+                data: []
+            },
+            {
+                label: 'Контракты юрлиц',
+                borderColor: "rgba(24,240,60,1)",
+                backgroundColor: "rgba(180,232,167,1)",
+                data: []
+            },
+            {
+                label: 'Контракты итого',
+                borderColor: "rgba(219,11,157,1)",
+                backgroundColor: "rgba(229,167,232,1)",
+                data: []
+            }
+        ],
 
-            this.fiz_chart = new Chart(this.fizPositionCtx, {
-                type: 'pie',
-                data: getPieData(row_data.fiz_long, row_data.fiz_short),
-                options: fiz_options
+        // Функции построения графика на дату
+
+        // Входные данные - модель FeatureOpenPositions
+        drawChart: function (featureData) {
+            if (featureData) {
+
+                var fiz_short = featureData.get('fiz').get('short').toJSON();
+                var fiz_long = featureData.get('fiz').get('long').toJSON();
+                var jur_short = featureData.get('jur').get('short').toJSON();
+                var jur_long = featureData.get('jur').get('long').toJSON();
+
+                new Chart(this.fizPositionCtx, {
+                    type: 'pie',
+                    data: getPieData(fiz_long.position, fiz_short.position),
+                    options: {
+                        title: {
+                            display: true,
+                            text: 'Физические лица'
+                        }
+                    }
+                });
+
+                new Chart(this.jurPositionCtx, {
+                    type: 'pie',
+                    data: getPieData(jur_long.position, jur_short.position),
+                    options: {
+                        title: {
+                            display: true,
+                            text: 'Юридические лица'
+                        }
+                    }
+                });
+            }
+        },
+
+        // Входные данные - данные строки таблицы
+        drawChart2: function (row_data) {
+            if (row_data) {
+
+                if (this.fizChart)
+                    this.fizChart.destroy();
+
+                if (this.jurChart)
+                    this.jurChart.destroy();
+
+                var fiz_options = charts.pieOptions();
+                fiz_options.title.text = 'Физические лица';
+
+                var jur_options = charts.pieOptions();
+                jur_options.title.text = 'Юридические лица';
+
+                this.fizChart = new Chart(this.fizPositionCtx, {
+                    type: 'pie',
+                    data: charts.getPieData(row_data.fiz_long, row_data.fiz_short),
+                    options: fiz_options
+                });
+
+                this.jurChart = new Chart(this.jurPositionCtx, {
+                    type: 'pie',
+                    data: charts.getPieData(row_data.jur_long, row_data.jur_short),
+                    options: jur_options
+                });
+            }
+        },
+
+        // Функция преобразования данных в виде обхекта вида "2016-01-11": 72.9299 в формат  charts.js {x: "2016-01-11":, y: 72.9299}
+        // data - данные от API за период
+        prepareRatesData: function (data) {
+            var chartData = [];
+            if (data && data.rates) {
+                for (var key in data.rates) {
+                    chartData.push({
+                        x: key,
+                        y: data.rates[key]
+                    });
+                }
+            }
+            return chartData;
+        },
+
+        // Функция отображения на графике динамики открытых позиций новой порции данных (открытые позиции за новый день)
+        updatePeriodChartWithDataPortion: function (moment, openPositions) {
+            // Рассчитываем данные
+            var fiz_long_perc = openPositions.position.fiz_long / (openPositions.position.fiz_long + openPositions.position.fiz_short) * 100;
+            var jur_long_perc = openPositions.position.jur_long / (openPositions.position.jur_long + openPositions.position.jur_short) * 100;
+            var total_long_perc = (openPositions.position.fiz_long + openPositions.position.jur_long) / (openPositions.position.fiz_long + openPositions.position.fiz_short + openPositions.position.jur_long + openPositions.position.jur_short) * 100;
+
+            // Добавляем данные в соответствующие массивы
+            this.dynamicDatasets[0].data.push({
+                x: moment,
+                y: fiz_long_perc
             });
 
-            this.jur_chart = new Chart(this.jurPositionCtx, {
-                type: 'pie',
-                data: getPieData(row_data.jur_long, row_data.jur_short),
-                options: jur_options
+            this.dynamicDatasets[1].data.push({
+                x: moment,
+                y: jur_long_perc
             });
+
+            this.dynamicDatasets[2].data.push({
+                x: moment,
+                y: total_long_perc
+            });
+
+            // Которые затем пересортировываем
+            this.dynamicDatasets[0].data = _.sortBy(this.dynamicDatasets[0].data, 'x');
+            this.dynamicDatasets[1].data = _.sortBy(this.dynamicDatasets[1].data, 'x');
+            this.dynamicDatasets[2].data = _.sortBy(this.dynamicDatasets[2].data, 'x');
+
+            // Обновляем график
+            if (this.openPositionsDynamicsChart) {
+                this.openPositionsDynamicsChart.options.scales.xAxes[0].time.min = this.dynamicDatasets[0].data[0].x;
+                this.openPositionsDynamicsChart.options.scales.xAxes[0].time.max = this.dynamicDatasets[0].data[this.dynamicDatasets[0].data.length - 1].x;
+                this.openPositionsDynamicsChart.update();
+            }
+        },
+
+        // Получить максимальную дату из всех курсов
+        getMinMaxDates: function (data) {
+            var result = {};
+            if (data && data.rates) {
+                for (var key in data.rates) {
+                    if (!result.max || moment(result.max) < moment(key))
+                        result.max = key;
+                    if (!result.min || moment(result.min) > moment(key))
+                        result.min = key;
+                }
+            }
+            return result;
+        },
+
+        // отображаем диаграмму с курсами валют
+        drawCurrencyRatesChart: function (data) {
+            if (this.currencyRatesChart)
+                this.currencyRatesChart.destroy();
+
+            periodBoundaries = charts.ChartMan.getMinMaxDates(data);
+
+            this.currencyRatesChart = new Chart(this.currencyRatesCtx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Курс USD ЦБ РФ',
+                        borderColor: "rgba(219,11,94,1)",
+                        backgroundColor: "rgba(255,217,226,1)",
+                        data: this.prepareRatesData(data)
+                    }]
+                },
+                options: {
+                    scales: {
+                        xAxes: [{
+                            type: 'time',
+                            time: {
+                                unit: 'week',
+                                min: periodBoundaries.min,
+                                max: periodBoundaries.max
+                            }
+                        }]
+                    }
+                }
+            })
+        },
+
+        // начальная отрисовка диаграммы открытых позиций в динамике
+        drawOpenPositionsDynamicsChart: function () {
+            if (this.openPositionsDynamicsChart)
+                this.openPositionsDynamicsChart.destroy();
+
+            _.each(this.dynamicDatasets, function (dataset) {
+                dataset.data = [];
+            });
+
+            this.dynamicDatasets[0].data = [];
+
+            this.openPositionsDynamicsChart = new Chart(this.openPositionsDynamicsCtx, {
+                type: 'line',
+                data: {
+                    datasets: this.dynamicDatasets
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: 'Доля лонгов в общем количестве позиций, %'
+                    },
+                    scales: {
+                        xAxes: [{
+                            type: 'time',
+                            time: {
+                                unit: 'week'
+                            }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            })
+
         }
     }
-}
+};

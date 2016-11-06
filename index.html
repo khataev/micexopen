@@ -5,48 +5,62 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="css/style.css">
     <link id="bs-css" rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
-    <link id="bsdp-css" rel="stylesheet" href="bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker3.min.css">
+    <link id="bsdp-css" rel="stylesheet"
+          href="bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker3.min.css">
     <link rel="stylesheet" href="bower_components/select2/dist/css/select2.min.css">
 
     <title>ММВБ</title>
 </head>
 
 <body>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-9">
-
-                <select class="select-features-list" style="width: 100%">
-                </select>
-            </div>
-            <div class="col-md-2">
-                <input type="text" class="form-control" id="datepicker">
-            </div>
-            <div class="col-md-1">
-                <button id="show-btn" class="btn btn-info" type="submit">Показать</button>
-            </div>
-
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <select class="select-features-list" style="width: 100%">
+            </select>
         </div>
-        <div class="row">
-            <div class="col-md-12 table-row">
-                <table class="table table-bordered table-hover position-details-table">
-                    <col>
+    </div>
+    <!-- Табы -->
+    <div class="row tabs-area">
+        <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#static">Открытые позиции на дату</a></li>
+            <li><a data-toggle="tab" href="#dynamic">Динамика открытых позиций</a></li>
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div id="static" class="tab-pane fade in active">
+            <!-- Таблица с информацией об открытых позициях -->
+            <div class="row table-row">
+                <div class="col-md-9 text-right text-header">
+                    Дата:
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" id="datepicker">
+                </div>
+                <div class="col-md-1">
+                    <button id="show-static-btn" class="btn btn-info" type="submit">Показать</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 table-row">
+                    <table class="table table-bordered table-hover position-details-table">
+                        <col>
                         <colgroup span="2"></colgroup>
                         <colgroup span="2"></colgroup>
                         <colgroup></colgroup>
-                    <thead>
-                            <tr>
-                                <td rowspan="2"></td>
-                                <th colspan="2" scope="colgroup">Физические лица</th>
-                                <th colspan="2" scope="colgroup">Юридические лица</th>
-                                <th rowspan="2" scope="colgroup">Совокупный объем открытых позиций</th>
-                            </tr>
-                            <tr>
-                                <th scope="col">Длинные позиции</th>
-                                <th scope="col">Короткие позиции</th>
-                                <th scope="col">Длинные позиции</th>
-                                <th scope="col">Короткие позиции</th>
-                            </tr>
+                        <thead>
+                        <tr>
+                            <td rowspan="2"></td>
+                            <th colspan="2" scope="colgroup">Физические лица</th>
+                            <th colspan="2" scope="colgroup">Юридические лица</th>
+                            <th rowspan="2" scope="colgroup">Совокупный объем открытых позиций</th>
+                        </tr>
+                        <tr>
+                            <th scope="col">Длинные позиции</th>
+                            <th scope="col">Короткие позиции</th>
+                            <th scope="col">Длинные позиции</th>
+                            <th scope="col">Короткие позиции</th>
+                        </tr>
                         </thead>
                         <tr>
                             <th scope="row">Количество договоров (контрактов), шт.</th>
@@ -57,7 +71,10 @@
                             <td>-</td>
                         </tr>
                         <tr>
-                            <th scope="row">Относительное изменение количества договоров (контрактов) по отношению к предыдущему дню, в %</th>
+                            <th scope="row">Относительное изменение количества договоров (контрактов) по отношению к
+                                предыдущему
+                                дню, в %
+                            </th>
                             <td>-</td>
                             <td>-</td>
                             <td>-</td>
@@ -73,107 +90,166 @@
                             <td>-</td>
                         </tr>
                         <tr>
-                            <th scope="row">Изменение количества договоров (контрактов) по отношению к предыдущему дню, шт.</th>
+                            <th scope="row">Изменение количества договоров (контрактов) по отношению к предыдущему дню,
+                                шт.
+                            </th>
                             <td>-</td>
                             <td>-</td>
                             <td>-</td>
                             <td>-</td>
                             <td>-</td>
                         </tr>
-                </table>
+                    </table>
+                </div>
+            </div>
+            <!-- Область с диаграммами -->
+            <div class="row chart-row">
+                <div class="col-md-6 chart-area">
+                    <canvas id="fizPositionChart"></canvas>
+                </div>
+                <div class="col-md-6 chart-area">
+                    <canvas id="jurPositionChart"></canvas>
+                </div>
             </div>
         </div>
-        <div class="row chart-row">
-            <div class="col-md-6 chart-area">
-                <canvas id="fizPositionChart"></canvas>
+        <div id="dynamic" class="tab-pane fade">
+            <div class="row table-row">
+                <div class="col-md-6 text-right text-header">Интервал c:</div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" id="datepickerFrom">
+                </div>
+                <div class="col-md-1 text-center text-header"> по:</div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" id="datepickerTo">
+                </div>
+                <div class="col-md-1">
+                    <button id="show-dynamics-btn" class="btn btn-info" type="submit">Показать</button>
+                </div>
             </div>
-            <div class="col-md-6 chart-area">
-                <canvas id="jurPositionChart"></canvas>
+            <!-- Область с диаграммами -->
+             <div class="row">
+                <div class="col-md-12 chart-area">
+                    <canvas id="openPositionsDynamicsChart" height="120"></canvas>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 chart-area">
+                    <canvas id="currencyRatesChart" height="120"></canvas>
+                </div>
             </div>
         </div>
     </div>
+    <!--
+    <div class="row counter">
+        <div class="col-md-6">
+            <a href="http://www.hitwebcounter.com" target="_blank">
+                <img src="http://hitwebcounter.com/counter/counter.php?page=6499134&style=0006&nbdigits=5&type=ip&initCount=0"
+                     title="IP Address" Alt="IP Address" border="0">
+            </a> <br/>
+            <a href="http://www.hitwebcounter.com" title="Unique Hits"
+                                         target="_blank" style="font-family: Arial, Helvetica, sans-serif;
+                                        font-size: 10px; color: #636066; text-decoration: underline ;"><strong>Unique
+            Hits </strong>
+        </a>
+        </div>
+        <div class="col-md-6">
+            <a href="http://www.hitwebcounter.com" target="_blank">
+                <img src="http://hitwebcounter.com/counter/counter.php?page=6499135&style=0006&nbdigits=5&type=page&initCount=0"
+                     title="IP Address" Alt="IP Address" border="0">
+            </a> <br/>
+            ><a href="http://www.hitwebcounter.com" title="Unique Hits"
+                                         target="_blank" style="font-family: Arial, Helvetica, sans-serif;
+                                        font-size: 10px; color: #636066; text-decoration: underline ;"><strong>Total
+            Hits </strong>
+        </a>
 
-    <script type="text/template" class="feature-item-template-select">
-        <option value="<%= value %>">
-            <%= name %>
-        </option>
-    </script>
+        </div>
+    </div>
+    -->
+</div>
 
-    <!-- TODO: Think how to manage only data-name -->
-    <script type="text/template" class="position-details">
-        <tr data-name="position">
-            <th scope="row">Количество договоров (контрактов), шт.</th>
-            <td class="rightCell">
-                <%= numberFormat(pos['position'].fiz_long) %>
-            </td>
-            <td class="rightCell">
-                <%= numberFormat(pos['position'].fiz_short) %>
-            </td>
-            <td class="rightCell">
-                <%= numberFormat(pos['position'].jur_long) %>
-            </td>
-            <td class="rightCell">
-                <%= numberFormat(pos['position'].jur_short) %>
-            </td>
-            <td class="rightCell">
-                <%= numberFormat(pos['position'].total) %>
-            </td>
-        </tr>
-        <tr data-name="change_prev_week_abs">
-            <th scope="row">Изменение количества договоров (контрактов) по отношению к предыдущему дню, шт.</th>
-            <td class="rightCell">
-                <%= numberFormat(pos['change_prev_week_abs'].fiz_long) %>
-            </td>
-            <td class="rightCell">
-                <%= numberFormat(pos['change_prev_week_abs'].fiz_short) %>
-            </td>
-            <td class="rightCell">
-                <%= numberFormat(pos['change_prev_week_abs'].jur_long) %>
-            </td>
-            <td class="rightCell">
-                <%= numberFormat(pos['change_prev_week_abs'].jur_short) %>
-            </td>
-            <td class="rightCell">
-                <%= numberFormat(pos['change_prev_week_abs'].total) %>
-            </td>
-        </tr>
-        <tr data-name="change_prev_week_perc">
-            <th scope="row">Относительное изменение количества договоров (контрактов) по отношению к предыдущему дню, в %</th>
-            <td class="rightCell">
-                <%= numberFormatPerc(pos['change_prev_week_perc'].fiz_long) %>
-            </td>
-            <td class="rightCell">
-                <%= numberFormatPerc(pos['change_prev_week_perc'].fiz_short) %>
-            </td>
-            <td class="rightCell">
-                <%= numberFormatPerc(pos['change_prev_week_perc'].jur_long) %>
-            </td>
-            <td class="rightCell">
-                <%= numberFormatPerc(pos['change_prev_week_perc'].jur_short) %>
-            </td>
-            <td class="rightCell">
-                <%= numberFormatPerc(pos['change_prev_week_abs'].total / pos['position'].total ) %>
-            </td>
-        </tr>
-        <tr data-name="clients">
-            <th scope="row">Количество лиц, имеющих открытые позиции</th>
-            <td class="rightCell">
-                <%= numberFormat(pos['clients'].fiz_long) %>
-            </td>
-            <td class="rightCell">
-                <%= numberFormat(pos['clients'].fiz_short) %>
-            </td>
-            <td class="rightCell">
-                <%= numberFormat(pos['clients'].jur_long) %>
-            </td>
-            <td class="rightCell">
-                <%= numberFormat(pos['clients'].jur_short) %>
-            </td>
-            <td class="rightCell">
-                <%= numberFormat(pos['clients'].total) %>
-            </td>
-        </tr>
-    </script>
+<script type="text/template" class="feature-item-template-select">
+    <option value="<%= value %>">
+        <%= name %>
+    </option>
+</script>
+
+<!-- TODO: Think how to manage only data-name -->
+<script type="text/template" class="position-details">
+    <tr data-name="position">
+        <th scope="row">Количество договоров (контрактов), шт.</th>
+        <td class="rightCell">
+            <%= numberFormat(pos['position'].fiz_long) %>
+        </td>
+        <td class="rightCell">
+            <%= numberFormat(pos['position'].fiz_short) %>
+        </td>
+        <td class="rightCell">
+            <%= numberFormat(pos['position'].jur_long) %>
+        </td>
+        <td class="rightCell">
+            <%= numberFormat(pos['position'].jur_short) %>
+        </td>
+        <td class="rightCell">
+            <%= numberFormat(pos['position'].total) %>
+        </td>
+    </tr>
+    <tr data-name="change_prev_week_abs">
+        <th scope="row">Изменение количества договоров (контрактов) по отношению к предыдущему дню, шт.</th>
+        <td class="rightCell">
+            <%= numberFormat(pos['change_prev_week_abs'].fiz_long) %>
+        </td>
+        <td class="rightCell">
+            <%= numberFormat(pos['change_prev_week_abs'].fiz_short) %>
+        </td>
+        <td class="rightCell">
+            <%= numberFormat(pos['change_prev_week_abs'].jur_long) %>
+        </td>
+        <td class="rightCell">
+            <%= numberFormat(pos['change_prev_week_abs'].jur_short) %>
+        </td>
+        <td class="rightCell">
+            <%= numberFormat(pos['change_prev_week_abs'].total) %>
+        </td>
+    </tr>
+    <tr data-name="change_prev_week_perc">
+        <th scope="row">Относительное изменение количества договоров (контрактов) по отношению к предыдущему дню, в %
+        </th>
+        <td class="rightCell">
+            <%= numberFormatPerc(pos['change_prev_week_perc'].fiz_long) %>
+        </td>
+        <td class="rightCell">
+            <%= numberFormatPerc(pos['change_prev_week_perc'].fiz_short) %>
+        </td>
+        <td class="rightCell">
+            <%= numberFormatPerc(pos['change_prev_week_perc'].jur_long) %>
+        </td>
+        <td class="rightCell">
+            <%= numberFormatPerc(pos['change_prev_week_perc'].jur_short) %>
+        </td>
+        <td class="rightCell">
+            <%= numberFormatPerc(pos['change_prev_week_abs'].total / pos['position'].total ) %>
+        </td>
+    </tr>
+    <tr data-name="clients">
+        <th scope="row">Количество лиц, имеющих открытые позиции</th>
+        <td class="rightCell">
+            <%= numberFormat(pos['clients'].fiz_long) %>
+        </td>
+        <td class="rightCell">
+            <%= numberFormat(pos['clients'].fiz_short) %>
+        </td>
+        <td class="rightCell">
+            <%= numberFormat(pos['clients'].jur_long) %>
+        </td>
+        <td class="rightCell">
+            <%= numberFormat(pos['clients'].jur_short) %>
+        </td>
+        <td class="rightCell">
+            <%= numberFormat(pos['clients'].total) %>
+        </td>
+    </tr>
+</script>
 
 </body>
 
@@ -185,10 +261,12 @@
 <script src="bower_components/select2/dist/js/select2.min.js"></script>
 <script src="bower_components/papaparse/papaparse.min.js"></script>
 <script src="bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
-<script src="bower_components/bootstrap-datepicker/dist/locales/bootstrap-datepicker.ru.min.js" charset="UTF-8"></script>
+<script src="bower_components/bootstrap-datepicker/dist/locales/bootstrap-datepicker.ru.min.js"
+        charset="UTF-8"></script>
 <script src="bower_components/moment/min/moment.min.js"></script>
 <script src="bower_components/chart.js/dist/Chart.min.js"></script>
 <script src="js/charts.js"></script>
 <script src="js/scripts.js"></script>
+<script src="js/apicalls.js"></script>
 
 </html>

@@ -6,18 +6,24 @@
     margin-top: 20px;
 }
 
-.select-features-list {
-    /*    width: 100%;*/
+.tabs-area {
+    margin-top: 20px;
 }
 
 #datepicker {
     height: 70%;
 }
 
-.chart-row {
-    height: 400px;
+.chart-canvas {
+    height: 300px;
 }
 
 .table td.rightCell {
     text-align: right;
+}
+
+.text-header {
+    margin-top: 7px;
+    font-size: 16px;
+    font-weight: bold;
 }

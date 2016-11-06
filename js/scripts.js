@@ -1,6 +1,7 @@
 'use strict';
 
 var app = {
+    // Наименование инструмента
     getFeatureName: function (name, contractType) {
         var name = name;
 
@@ -13,6 +14,7 @@ var app = {
         return name;
     },
 
+    // Открытые позиции на дату
     OpenPositions: function () {
         this.addPosition = function (position) {
             var isinkey = position.isin + '_' + position.contract_type;
@@ -57,8 +59,13 @@ var app = {
     },
 
     openPositions: null,
+    openPositionsDynamics: null,
+    // Массив обработанных дней в периоде - необходим для синхронизации асинхронных потоков загрузки csv с основным
+    workingPeriodSync: null,
 
+    // Коллбек после загрузки csv файла
     onCsvComplete: function (results) {
+        // загружаем данные из файла в объект OpenPositions
         app.openPositions = new app.OpenPositions();
 
 
@@ -78,6 +85,10 @@ var app = {
         }
     },
 
+    // Функция загрузки csv с открытыми позициями по инструментам
+    // date - дата в виде строки ГГГГММДД
+    // onComplete - коллбек по окончанию загрузки csv
+    // onRender - функция по обновлению интерфейса (если требуется)
     loadMoexCsv: function (date, onComplete, onRender) {
         Papa.parse("http://moex.com/ru/derivatives/open-positions-csv.aspx?d=" + date + "&t=1", {
             delimiter: ",",
@@ -89,25 +100,58 @@ var app = {
              app.onCsvComplete(results);
              }*/
             complete: function (results) {
-                onComplete(results);
-                onRender();
+                if (onComplete)
+                    onComplete(results);
+                if (onRender)
+                    onRender();
             }
         });
 
 
     },
 
+    // Функция аккумулирования загруженных на дату открытых позиций в хэш-массиве
+    accumulateCsv: function (results) {
+        app.onCsvComplete(results);
+
+        // структурированные данные из объекта на дату добавляем в хэш-массив
+        if (results.data[0].moment !== "") {
+            app.openPositionsDynamics[results.data[0].moment] = app.openPositions;
+
+            app.renderDynamicDataPortion(app.openPositions);
+
+            // отметим день, который обработали
+            app.workingPeriodSync.pop();
+            // if (app.workingPeriodSync.length == 0)
+            //     app.renderDynamics();
+        }
+    },
+
+    // Функция загрузки курса валюты на дату
+    loadUsdRate: function (momentFrom, momentTo) {
+        var resultCallback = function(result) {
+            app.renderRates(result);
+        };
+        api.getUSDRatesJSON(momentFrom, momentTo, resultCallback);
+    },
+
+    renderDynamicDataPortion: function (openPositions) {
+        var key = app.controls.dropdown.val();
+        var data = app.transformPositionsData(openPositions[key]);
+        charts.ChartMan.updatePeriodChartWithDataPortion(openPositions[key].get('moment'), data);
+    },
+
+    // Функция отрисовки для "динамики"
+    // TODO: отрефакторить - убрать параметр с данными?
+    renderRates: function(data) {
+        charts.ChartMan.drawCurrencyRatesChart(data);
+    },
+
     controls: {},
 
-    initView: function () {
-        app.controls.dropdown = $(".select-features-list").select2({
-            placeholder: 'Выберите инструмент',
-            data: app.featuresListRaw
-        });
-
-        $(".select-features-list").val('Si_F').trigger('change');
-
-        $('#datepicker').datepicker({
+    // Инициация DatePicker с указанным именем, указанной датой (moment)
+    initDatePicker: function(pickerId, defaultMoment){
+        $(pickerId).datepicker({
             format: "dd.mm.yyyy",
             weekStart: 1,
             todayBtn: "linked",
@@ -117,21 +161,62 @@ var app = {
             language: 'ru'
         });
 
-        $('#datepicker').datepicker('setDate', app.getPreviousTradingDay().toDate());
-        $('#datepicker').datepicker('update');
-
-        $('.position-details-table tbody tr').click(function () {
-            // if ($(this).data('name'))
-            console.log(this.model);
-            // alert($(this).data('name'));
-            // ChartMan.drawChart2(app.openPositions[key]);
-        });
+        $(pickerId).datepicker('setDate', defaultMoment.toDate());
+        $(pickerId).datepicker('update');
     },
 
+    // инициализация интерфейса
+    initView: function () {
+        app.controls.dropdown = $(".select-features-list").select2({
+            placeholder: 'Выберите инструмент',
+            data: app.featuresListRaw
+        });
+
+        $(".select-features-list").val('Si_F').trigger('change');
+
+        app.initDatePicker('#datepicker', app.getPreviousTradingDay());
+        // app.initDatePicker('#datepickerFrom', app.getFirstDayOfMonth());
+        app.initDatePicker('#datepickerFrom', app.getPreviousTradingDay());
+        app.initDatePicker('#datepickerTo', app.getPreviousTradingDay());
+
+    },
+
+    // Загрузка данных на дату и отображение на странице
     loadData: function (moment, renderFunction) {
         app.loadMoexCsv(moment.format('YYYYMMDD'), app.onCsvComplete, renderFunction);
+    },
+
+    // Загрузка данных за период и отображение на странице
+    loadDataPeriod: function(momentFrom, momentTo) {
+        var currentMoment = moment(momentFrom);
+
+        app.openPositionsDynamics = {};
+        // Отрисовываем пустой график
+        charts.ChartMan.drawOpenPositionsDynamicsChart();
+
+        // Заполнение массива для синхронизации потоков
+        app.workingPeriodSync = [];
+        var currentMomentDup = moment(momentFrom);
+        while (currentMomentDup.isBefore(momentTo,'day') || currentMomentDup.isSame(momentTo,'day')) {
+            if (currentMomentDup.day() > 0 && currentMomentDup.day() < 7) {
+                app.workingPeriodSync.push(currentMomentDup.format('YYYYMMDD'));
+            }
+            currentMomentDup.add(1,'day');
+        }
+
+        // загрузка данных с ММВБ по открытым позициям за период
+        while (currentMoment.isBefore(momentTo,'day') || currentMoment.isSame(momentTo,'day')) {
+            if (currentMoment.day() > 0 && currentMoment.day() < 6) {
+                app.loadMoexCsv(currentMoment.format('YYYYMMDD'), app.accumulateCsv, null /*app.renderDynamics*/);
+            }
+            currentMoment.add(1,'day');
+        }
+
+        // загрузка курсов USD за период
+        // TODO: разнести загрузку и отображение
+        app.loadUsdRate(momentFrom, momentTo);
     }
-}
+};
 
 
 //--------------
@@ -233,7 +318,6 @@ app.FeaturesListView = Backbone.View.extend({
         var self = this;
         this.$el.html('');
         _.each(this.model.toArray(), function (feature) {
-            //            console.log(feature.toJSON());
             var newEl = (new app.FeatureListItemView({
                 model: feature
             })).render().$el;
@@ -285,20 +369,11 @@ app.OpenPositionView = Backbone.View.extend({
         this.$el.children('tbody').empty();
         // this.$el.children('tbody').html(this.template({pos: data}));
         this.$el.children('tbody').html(this.template(mdata));
-        // this.$el.children('tbody').html(this.template(
-        //     {
-        //         fiz_short: this.model.get('fiz').get('short').toJSON(),
-        //         fiz_long: this.model.get('fiz').get('long').toJSON(),
-        //         jur_short: this.model.get('jur').get('short').toJSON(),
-        //         jur_long: this.model.get('jur').get('long').toJSON(),
-        //         total: this.model.get('total').toJSON()
-        //     }
-        // ));
 
         var clickHandler = function (event) {
             var row_data = event.data.pos[$(this).data('name')];
-            ChartMan.drawChart2(row_data);
-        }
+            charts.ChartMan.drawChart2(row_data);
+        };
 
         // Binds handler on table's row click
         $('.position-details-table tbody tr').on('click', {pos: data}, clickHandler);
@@ -323,12 +398,15 @@ app.viewHelpers = {
 app.AppView = Backbone.View.extend({
     el: $('.container'),
     initialize: function () {
-        this.showBtn = this.$('#show-btn')
+        // this.showStaticBtn = this.$('#show-static-btn');
+        // this.showDynamicBtn = this.$('#show-dynamic-btn')
 
     },
     events: {
-        'click #show-btn': 'showOpenPositions'
+        'click #show-static-btn': 'showOpenPositions',
+        'click #show-dynamics-btn': 'showPositionsDynamic'
     },
+    // обработчик клика по кнопке Показать на дату
     showOpenPositions: function (e) {
 
         var onRender = function () {
@@ -342,11 +420,17 @@ app.AppView = Backbone.View.extend({
             var data = app.transformPositionsData(app.openPositions[key]);
 
             // ChartMan.drawChart(app.openPositions[key]);
-            ChartMan.drawChart2(data.position);
+            charts.ChartMan.drawChart2(data.position);
         };
 
         app.loadData(moment($('#datepicker').val(), 'DD.MM.YYYY'), onRender);
+    },
+
+    // обработчик клика по кнопке Показать за период
+    showPositionsDynamic: function(e) {
+        app.loadDataPeriod(moment($('#datepickerFrom').val(), 'DD.MM.YYYY'),moment($('#datepickerTo').val(), 'DD.MM.YYYY'));
     }
+
 });
 
 app.appView = new app.AppView();
@@ -365,8 +449,14 @@ app.getPreviousTradingDay = function () {
             break;
     }
 
-    return day;
-}
+    // TODO: wipe out stub for 03.11. And get holidays list
+    return moment().isSame('2016-11-06', 'day') ? moment().subtract(3, 'days') : day;
+};
+
+app.getFirstDayOfMonth = function () {
+    // TODO: Доработать
+    return moment().set('date',4);
+};
 
 $(document).ready(
     // TODO: Load data on page load
