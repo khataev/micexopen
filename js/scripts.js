@@ -450,7 +450,11 @@ app.getPreviousTradingDay = function () {
     }
 
     // TODO: wipe out stub for 03.11. And get holidays list
-    return moment().isSame('2016-11-06', 'day') ? moment().subtract(3, 'days') : day;
+    return moment().isSame('2016-11-06', 'day') ?
+        moment().subtract(3, 'days') :
+        (moment().isSame('2016-11-07', 'day') ?
+            moment().subtract(3, 'days') :
+            day);
 };
 
 app.getFirstDayOfMonth = function () {
