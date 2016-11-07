@@ -129,10 +129,11 @@ var app = {
 
     // Функция загрузки курса валюты на дату
     loadUsdRate: function (momentFrom, momentTo) {
-        var resultCallback = function(result) {
+        var resultCallback = function (result) {
             app.renderRates(result);
         };
-        api.getUSDRatesJSON(momentFrom, momentTo, resultCallback);
+        app.clearRatesError();
+        api.getUSDRatesJSON(momentFrom, momentTo, resultCallback, app.renderRatesError);
     },
 
     renderDynamicDataPortion: function (openPositions) {
@@ -143,14 +144,24 @@ var app = {
 
     // Функция отрисовки для "динамики"
     // TODO: отрефакторить - убрать параметр с данными?
-    renderRates: function(data) {
+    renderRates: function (data) {
         charts.ChartMan.drawCurrencyRatesChart(data);
+    },
+
+    // Очистка области с ошибками загрузки курса доллара
+    clearRatesError: function () {
+        $('.rates-error-border').hide();
+    },
+
+    // Отображение ошибки загрузки курса доллара
+    renderRatesError: function () {
+        $('.rates-error-border').show();
     },
 
     controls: {},
 
     // Инициация DatePicker с указанным именем, указанной датой (moment)
-    initDatePicker: function(pickerId, defaultMoment){
+    initDatePicker: function (pickerId, defaultMoment) {
         $(pickerId).datepicker({
             format: "dd.mm.yyyy",
             weekStart: 1,
@@ -187,7 +198,7 @@ var app = {
     },
 
     // Загрузка данных за период и отображение на странице
-    loadDataPeriod: function(momentFrom, momentTo) {
+    loadDataPeriod: function (momentFrom, momentTo) {
         var currentMoment = moment(momentFrom);
 
         app.openPositionsDynamics = {};
@@ -197,19 +208,19 @@ var app = {
         // Заполнение массива для синхронизации потоков
         app.workingPeriodSync = [];
         var currentMomentDup = moment(momentFrom);
-        while (currentMomentDup.isBefore(momentTo,'day') || currentMomentDup.isSame(momentTo,'day')) {
+        while (currentMomentDup.isBefore(momentTo, 'day') || currentMomentDup.isSame(momentTo, 'day')) {
             if (currentMomentDup.day() > 0 && currentMomentDup.day() < 7) {
                 app.workingPeriodSync.push(currentMomentDup.format('YYYYMMDD'));
             }
-            currentMomentDup.add(1,'day');
+            currentMomentDup.add(1, 'day');
         }
 
         // загрузка данных с ММВБ по открытым позициям за период
-        while (currentMoment.isBefore(momentTo,'day') || currentMoment.isSame(momentTo,'day')) {
+        while (currentMoment.isBefore(momentTo, 'day') || currentMoment.isSame(momentTo, 'day')) {
             if (currentMoment.day() > 0 && currentMoment.day() < 6) {
                 app.loadMoexCsv(currentMoment.format('YYYYMMDD'), app.accumulateCsv, null /*app.renderDynamics*/);
             }
-            currentMoment.add(1,'day');
+            currentMoment.add(1, 'day');
         }
 
         // загрузка курсов USD за период
@@ -390,7 +401,7 @@ app.viewHelpers = {
         return s.numberFormat(number, 2, ',', ' ');
     },
     numberFormatPerc: function (number) {
-        return s.numberFormat(number*100, 2, ',', ' ');
+        return s.numberFormat(number * 100, 2, ',', ' ');
     }
 };
 
@@ -427,8 +438,8 @@ app.AppView = Backbone.View.extend({
     },
 
     // обработчик клика по кнопке Показать за период
-    showPositionsDynamic: function(e) {
-        app.loadDataPeriod(moment($('#datepickerFrom').val(), 'DD.MM.YYYY'),moment($('#datepickerTo').val(), 'DD.MM.YYYY'));
+    showPositionsDynamic: function (e) {
+        app.loadDataPeriod(moment($('#datepickerFrom').val(), 'DD.MM.YYYY'), moment($('#datepickerTo').val(), 'DD.MM.YYYY'));
     }
 
 });
@@ -459,7 +470,7 @@ app.getPreviousTradingDay = function () {
 
 app.getFirstDayOfMonth = function () {
     // TODO: Доработать
-    return moment().set('date',4);
+    return moment().set('date', 4);
 };
 
 $(document).ready(

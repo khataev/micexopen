@@ -127,13 +127,17 @@
                 </div>
             </div>
             <!-- Область с диаграммами -->
-             <div class="row">
+            <div class="row">
                 <div class="col-md-12 chart-area">
                     <canvas id="openPositionsDynamicsChart" height="120"></canvas>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12 chart-area">
+                    <div class="rates-error-border">
+                        <h3 class="rates-error text-center">Здесь должен быть график курса доллара. К сожалению, сервис
+                            в данный момент недоступен, либо произошла ошибка и я работаю над ее устранением</h3>
+                    </div>
                     <canvas id="currencyRatesChart" height="120"></canvas>
                 </div>
             </div>
@@ -229,31 +233,38 @@
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript">
     (function (d, w, c) {
-        (w[c] = w[c] || []).push(function() {
+        (w[c] = w[c] || []).push(function () {
             try {
                 w.yaCounter40656204 = new Ya.Metrika({
-                    id:40656204,
-                    clickmap:true,
-                    trackLinks:true,
-                    accurateTrackBounce:true,
-                    webvisor:true
+                    id: 40656204,
+                    clickmap: true,
+                    trackLinks: true,
+                    accurateTrackBounce: true,
+                    webvisor: true
                 });
-            } catch(e) { }
+            } catch (e) {
+            }
         });
 
         var n = d.getElementsByTagName("script")[0],
                 s = d.createElement("script"),
-                f = function () { n.parentNode.insertBefore(s, n); };
+                f = function () {
+                    n.parentNode.insertBefore(s, n);
+                };
         s.type = "text/javascript";
         s.async = true;
         s.src = "https://mc.yandex.ru/metrika/watch.js";
 
         if (w.opera == "[object Opera]") {
             d.addEventListener("DOMContentLoaded", f, false);
-        } else { f(); }
+        } else {
+            f();
+        }
     })(document, window, "yandex_metrika_callbacks");
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/40656204" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<noscript>
+    <div><img src="https://mc.yandex.ru/watch/40656204" style="position:absolute; left:-9999px;" alt=""/></div>
+</noscript>
 <!-- /Yandex.Metrika counter -->
 <script src="bower_components/jquery/dist/jquery.js"></script>
 <script src="bower_components/underscore/underscore.js"></script>
