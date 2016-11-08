@@ -1,6 +1,7 @@
 var api = {
     // Путь к API для получения курса доллара
     usd_rates_url: 'http://vmnet.herokuapp.com/api/v1/rates/usd.json',
+    usd_rates_aux_url: 'http://7thheaven.myds.me:3000/api/v1/rates/usd.json',
     usd_rates_url_test: 'http://192.168.1.100:3000/api/v1/rates/usd.json',
 
     // Формирование полного URL для получения курса доллара за период времени
