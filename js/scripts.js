@@ -170,6 +170,8 @@ var app = {
             todayHighlight: true,
             daysOfWeekDisabled: "0,6",
             language: 'ru'
+            // ,endDate: '04.11.2016'
+            // ,endDate: app.getPreviousTradingDay().format('DD.MM.YYYY')
         });
 
         $(pickerId).datepicker('setDate', defaultMoment.toDate());
@@ -461,11 +463,13 @@ app.getPreviousTradingDay = function () {
     }
 
     // TODO: wipe out stub for 03.11. And get holidays list
-    return moment().isSame('2016-11-06', 'day') ?
+    return (moment().isSame('2016-11-06', 'day') ?
         moment().subtract(3, 'days') :
         (moment().isSame('2016-11-07', 'day') ?
             moment().subtract(4, 'days') :
-            day);
+            day))
+        // .hours(0).minutes(0).seconds(0)
+        ;
 };
 
 app.getFirstDayOfMonth = function () {
