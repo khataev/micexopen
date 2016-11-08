@@ -33,3 +33,7 @@
     border: dashed;
     display: none;
 }
+
+.error-area {
+    color: red;
+}

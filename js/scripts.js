@@ -104,6 +104,10 @@ var app = {
                     onComplete(results);
                 if (onRender)
                     onRender();
+            },
+            error: function() {
+                $('.error-area').html('Произошла ошибка при доступе к сервису ММВБ. Есть подозрение, что биржа изменила протокол сервиса, я изучаю данный момент. А пока попробуйте перезагрузить страницу или зайдите позже');
+                $('.error-area').show();
             }
         });
 
@@ -422,9 +426,11 @@ app.AppView = Backbone.View.extend({
     // обработчик клика по кнопке Показать на дату
     showOpenPositions: function (e) {
 
+        $('.error-area').html();
+        $('.error-area').hide();
+
         var onRender = function () {
             var key = app.controls.dropdown.val();
-
 
             new app.OpenPositionView({
                 model: app.openPositions[key]
