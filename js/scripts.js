@@ -90,22 +90,29 @@ var app = {
     // onComplete - коллбек по окончанию загрузки csv
     // onRender - функция по обновлению интерфейса (если требуется)
     loadMoexCsv: function (date, onComplete, onRender) {
-        Papa.parse("http://moex.com/ru/derivatives/open-positions-csv.aspx?d=" + date + "&t=1", {
+        var direct_url = "http://moex.com/ru/derivatives/open-positions-csv.aspx?d=" + date + "&t=1";
+        var proxy_url = "http://vmnet.herokuapp.com/open_positions/" + date;
+        var proxy_aux_url = "http://7thheaven.myds.me:3000/open_positions/" + date;
+
+        // TODO: Refacor with single error function
+        Papa.parse(proxy_url, {
             delimiter: ",",
             download: true,
             header: true,
+            encoding: "CP1251", // TODO: Разобраться с кодировкой в FireFox
             dynamicTyping: true,
-            // complete: onComplete
-            /*complete: function (results) {
-             app.onCsvComplete(results);
-             }*/
             complete: function (results) {
                 if (onComplete)
-                    onComplete(results);
+                    if (results.data[0].errorcode == 500) {
+                        $('.error-area').html('Сервер ММВБ перегружен. Пожалуйста повторите свою попытку позднее');
+                        $('.error-area').show();
+                    } else {
+                        onComplete(results);
+                    }
                 if (onRender)
                     onRender();
             },
-            error: function() {
+            error: function (err, file, inputElem, reason) {
                 $('.error-area').html('Произошла ошибка при доступе к сервису ММВБ. Есть подозрение, что биржа изменила протокол сервиса, я изучаю данный момент. А пока попробуйте перезагрузить страницу или зайдите позже');
                 $('.error-area').show();
             }
@@ -174,6 +181,7 @@ var app = {
             todayHighlight: true,
             daysOfWeekDisabled: "0,6",
             language: 'ru'
+            // TODO: Разобраться, как проинициализировать датапикер пограничной датой (endDate)
             // ,endDate: '04.11.2016'
             // ,endDate: app.getPreviousTradingDay().format('DD.MM.YYYY')
         });
