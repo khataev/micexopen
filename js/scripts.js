@@ -94,18 +94,21 @@ var app = {
         var proxy_url = "http://vmnet.herokuapp.com/open_positions/" + date;
         var proxy_aux_url = "http://7thheaven.myds.me:3000/open_positions/" + date;
 
-        // TODO: Refacor with single error function
+        var showError = function(message) {
+            var sel = $('.error-area');
+            sel.html(message);
+            sel.show();
+        };
+
         Papa.parse(proxy_url, {
             delimiter: ",",
             download: true,
             header: true,
-            encoding: "CP1251", // TODO: Разобраться с кодировкой в FireFox
             dynamicTyping: true,
             complete: function (results) {
                 if (onComplete)
                     if (results.data[0].errorcode == 500) {
-                        $('.error-area').html('Сервер ММВБ перегружен. Пожалуйста повторите свою попытку позднее');
-                        $('.error-area').show();
+                        showError('Сервер ММВБ перегружен. Пожалуйста повторите свою попытку позднее');
                     } else {
                         onComplete(results);
                     }
@@ -113,8 +116,7 @@ var app = {
                     onRender();
             },
             error: function (err, file, inputElem, reason) {
-                $('.error-area').html('Произошла ошибка при доступе к сервису ММВБ. Есть подозрение, что биржа изменила протокол сервиса, я изучаю данный момент. А пока попробуйте перезагрузить страницу или зайдите позже');
-                $('.error-area').show();
+                showError('Произошла ошибка при доступе к сервису ММВБ. Я изучаю данный момент. А пока попробуйте перезагрузить страницу или зайдите позднее');
             }
         });
 
