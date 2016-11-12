@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="yandex-verification" content="2d946d542581bf1f" />
+    <meta name="yandex-verification" content="2d946d542581bf1f"/>
     <link rel="stylesheet" href="css/style.css">
     <link id="bs-css" rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
     <link id="bsdp-css" rel="stylesheet"
@@ -15,6 +15,19 @@
 
 <body>
 <div class="container">
+    <!-- TODO: Адаптивность к экранам разных устройств -->
+    <!-- Строка меню -->
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+            <div class="collapse navbar-collapse navbar-right">
+                <ul class="nav navbar-nav">
+                    <li><a href="#" data-toggle="modal" data-target="#instructionsModal">Инструкция</a></li>
+                    <li><a href="#" data-toggle="modal" data-target="#contactsModal">Связаться с автором</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- Комбобокс с инструментами -->
     <div class="row">
         <div class="col-md-12">
             <select class="select-features-list" style="width: 100%">
@@ -229,6 +242,64 @@
         </td>
     </tr>
 </script>
+
+<!-- Instructions modal -->
+<div class="modal fade" id="instructionsModal" tabindex="-1" role="dialog" aria-labelledby="instructionsModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="instructionsModalLabel">Краткая инструкция</h4>
+            </div>
+            <div class="modal-body">
+                <h5>Открытые позиции на дату</h5>
+                <p>Необходимо выбрать нужный инструмент и дату и нажать кнопку <strong>Показать</strong>. Комбобокс
+                    поможет найти нужный инструмент - просто начните вводить его имя. Круговые
+                    диаграммы соответствуют каждой строке заполненой таблицы, после загрузки - это первая строка. Для
+                    визуализации выбранной строки необходимо кликнуть на ней.</p>
+                <h5>Динамика открытых позиций </h5>
+                <p>Дает возможность проследить изменение показателя "Количество контрактов" в разрезе физ и юрлиц за
+                    период. А так же сопоставить с изменением курса доллара (ЦБ). Первый запрос за период может
+                    подтормаживать и график курса USD появится с задержкой.</p>
+                <br/>
+                <p>ps: данный сайт живет пока на самом простом тарифном плане хостинг-провайдера, поэтому просьба
+                    проявлять терпение к возможным задержкам и "задумчивости" :)</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Все ясно!</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contacts modal -->
+<div class="modal fade" id="contactsModal" tabindex="-1" role="dialog" aria-labelledby="contactsModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="contactsModalLabel">Я в сети</h4>
+            </div>
+            <div class="modal-body">
+                <ul>
+                    <li><p>На форуме <a target="_blank" href="http://www.banki.ru/profile/?action=profile&UID=823120">banki.ru</a>
+                    </p></li>
+                    <li><p>На форуме <a target="_blank"
+                                        href="http://octavtrading.forum.wtf/messages.php?action=new&uid=69">octavtrading.forum.wtf</a>
+                    </p></li>
+                    <li><p><a target="_blank" href="https://vk.com/khataev">Вконтакте</a></p></li>
+                    <li><p><a target="_blank"
+                              href="https://www.facebook.com/profile.php?id=100006483577333">Facebook</a></p></li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 </body>
 
