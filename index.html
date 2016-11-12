@@ -29,7 +29,7 @@
     </nav>
     <!-- Комбобокс с инструментами -->
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-xs-12 col-sm-12 col-md-12">
             <select class="select-features-list" style="width: 100%">
             </select>
         </div>
@@ -46,18 +46,18 @@
         <div id="static" class="tab-pane fade in active">
             <!-- Таблица с информацией об открытых позициях -->
             <div class="row table-row">
-                <div class="col-md-9 text-right text-header">
+                <div class="col-xs-9 col-sm-9 col-md-9 text-right text-header">
                     Дата:
                 </div>
-                <div class="col-md-2">
+                <div class="col-xs-2 col-sm-2 col-md-2">
                     <input type="text" class="form-control" id="datepicker">
                 </div>
-                <div class="col-md-1">
+                <div class="col-xs-1 col-sm-1 col-md-1">
                     <button id="show-static-btn" class="btn btn-info" type="submit">Показать</button>
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12 table-row">
+                <div class="col-xs-12 col-sm-12 col-md-12 table-row">
                     <table class="table table-bordered table-hover position-details-table">
                         <col>
                         <colgroup span="2"></colgroup>
@@ -119,36 +119,36 @@
             </div>
             <!-- Область с диаграммами -->
             <div class="row chart-row">
-                <div class="col-md-6 chart-area">
+                <div class="col-xs-6 col-sm-6 col-md-6 chart-area">
                     <canvas id="fizPositionChart"></canvas>
                 </div>
-                <div class="col-md-6 chart-area">
+                <div class="col-xs-6 col-sm-6 col-md-6 chart-area">
                     <canvas id="jurPositionChart"></canvas>
                 </div>
             </div>
         </div>
         <div id="dynamic" class="tab-pane fade">
             <div class="row table-row">
-                <div class="col-md-6 text-right text-header">Интервал c:</div>
-                <div class="col-md-2">
+                <div class="col-xs-6 col-sm-6 col-md-6 text-right text-header">Интервал c:</div>
+                <div class="col-xs-2 col-sm-2 col-md-2">
                     <input type="text" class="form-control" id="datepickerFrom">
                 </div>
-                <div class="col-md-1 text-center text-header"> по:</div>
-                <div class="col-md-2">
+                <div class="col-xs-1 col-sm-1 col-md-1 text-center text-header"> по:</div>
+                <div class="col-xs-2 col-sm-2 col-md-2">
                     <input type="text" class="form-control" id="datepickerTo">
                 </div>
-                <div class="col-md-1">
+                <div class="col-xs-1 col-sm-1 col-md-1">
                     <button id="show-dynamics-btn" class="btn btn-info" type="submit">Показать</button>
                 </div>
             </div>
             <!-- Область с диаграммами -->
             <div class="row">
-                <div class="col-md-12 chart-area">
+                <div class="col-xs-12 col-sm-12 col-md-12 chart-area">
                     <canvas id="openPositionsDynamicsChart" height="120"></canvas>
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12 chart-area">
+                <div class="col-xs-12 col-sm-12 col-md-12 chart-area">
                     <div class="rates-error-border">
                         <h3 class="rates-error text-center">Здесь должен быть график курса доллара. К сожалению, сервис
                             в данный момент недоступен, либо произошла ошибка и я работаю над ее устранением</h3>
