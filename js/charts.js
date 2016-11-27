@@ -68,6 +68,22 @@ var charts = {
             }
         ],
 
+        // Изначальные данные для графика курса доллара
+        ratesDatasets: [
+            {
+                label: 'Курс USD ЦБ РФ',
+                borderColor: "rgba(219,11,94,1)",
+                backgroundColor: "rgba(229,167,232,0.1)",
+                data: []
+            },
+            {
+                label: 'Курс USDRUB_TOM (CLOSE)',
+                borderColor: "rgba(75,192,192,1)",
+                backgroundColor: "rgba(75,235,230,0.1)",
+                data: []
+            }
+        ],
+
         // Функции построения графика на дату
 
         // Входные данные - модель FeatureOpenPositions
@@ -139,10 +155,13 @@ var charts = {
             var chartData = [];
             if (data && data.rates) {
                 for (var key in data.rates) {
-                    chartData.push({
-                        x: key,
-                        y: data.rates[key]
-                    });
+                    // TODO: Подумать над тем, как быть с нулем из-за несуществующего дня в данных от ММВБ (почему не возвращается последний торговый день?)
+                    if (data.rates[key] > 0) {
+                        chartData.push({
+                            x: key,
+                            y: data.rates[key]
+                        });
+                    }
                 }
             }
             return chartData;
@@ -199,35 +218,46 @@ var charts = {
         },
 
         // отображаем диаграмму с курсами валют
-        drawCurrencyRatesChart: function (data) {
+        drawCurrencyRatesChart: function () {
             if (this.currencyRatesChart)
                 this.currencyRatesChart.destroy();
 
-            periodBoundaries = charts.ChartMan.getMinMaxDates(data);
+            // Reinitialize datasets on consequential loads
+            this.ratesDatasets[0].data = [];
+            this.ratesDatasets[1].data = [];
 
             this.currencyRatesChart = new Chart(this.currencyRatesCtx, {
                 type: 'line',
                 data: {
-                    datasets: [{
-                        label: 'Курс USD ЦБ РФ',
-                        borderColor: "rgba(219,11,94,1)",
-                        backgroundColor: "rgba(255,217,226,1)",
-                        data: this.prepareRatesData(data)
-                    }]
+                    datasets: this.ratesDatasets
                 },
                 options: {
                     scales: {
                         xAxes: [{
                             type: 'time',
                             time: {
-                                unit: 'week',
-                                min: periodBoundaries.min,
-                                max: periodBoundaries.max
+                                unit: 'week'
                             }
                         }]
                     }
                 }
-            })
+            });
+        },
+
+        updateRatesChartWithDataset: function (data, type) {
+            // Обновляем график
+            if (this.currencyRatesChart) {
+                periodBoundaries = charts.ChartMan.getMinMaxDates(data);
+
+                this.ratesDatasets[type].data = this.prepareRatesData(data);
+
+                if (this.currencyRatesChart) {
+                    this.currencyRatesChart.options.scales.xAxes[0].time.min = periodBoundaries.min;
+                    this.currencyRatesChart.options.scales.xAxes[0].time.max = periodBoundaries.max;
+
+                    this.currencyRatesChart.update();
+                }
+            }
         },
 
         // начальная отрисовка диаграммы открытых позиций в динамике

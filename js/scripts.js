@@ -145,20 +145,32 @@ var app = {
         var resultCallback = function (result) {
             app.renderRates(result);
         };
+
+        var resultSpotCallback = function (result) {
+            app.renderSpotRates(result);
+        };
         app.clearRatesError();
+        charts.ChartMan.drawCurrencyRatesChart();
         api.getUSDRatesJSON(momentFrom, momentTo, resultCallback, app.renderRatesError);
+        api.getSpotUSDRatesJSON(momentFrom, momentTo, resultSpotCallback, app.renderRatesError);
     },
 
+    // Функция отрисовки для "динамики"
     renderDynamicDataPortion: function (openPositions) {
         var key = app.controls.dropdown.val();
         var data = app.transformPositionsData(openPositions[key]);
         charts.ChartMan.updatePeriodChartWithDataPortion(openPositions[key].get('moment'), data);
     },
 
-    // Функция отрисовки для "динамики"
+    // функция для отрисовки данных Курса ЦБ
     // TODO: отрефакторить - убрать параметр с данными?
     renderRates: function (data) {
-        charts.ChartMan.drawCurrencyRatesChart(data);
+        charts.ChartMan.updateRatesChartWithDataset(data,0);
+    },
+
+    // для второго набора данных (от ММВБ)
+    renderSpotRates: function (data) {
+        charts.ChartMan.updateRatesChartWithDataset(data,1);
     },
 
     // Очистка области с ошибками загрузки курса доллара

@@ -10,6 +10,7 @@
     <link id="bsdp-css" rel="stylesheet"
           href="bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker3.min.css">
     <link rel="stylesheet" href="bower_components/select2/dist/css/select2.min.css">
+    <link rel="shortcut icon" href="http://micexopen.khataev.com/favicon.ico" type="image/x-icon">
 
     <title>Просмотр и анализ открытых позиций на ММВБ</title>
 </head>
@@ -272,6 +273,9 @@
                 <p>Дает возможность проследить изменение показателя "Количество контрактов" в разрезе физ и юрлиц за
                     период. А так же сопоставить с изменением курса доллара (ЦБ). Первый запрос за период может
                     подтормаживать и график курса USD появится с задержкой.</p>
+                <p><strong>upd от 27.11.2016:</strong> На график курса доллара добавлены данные о цене закрытия торгов по инструменту
+                    USDRUB_TOM. В этом наборе данных отсутствует последний торговый день (если запрошен в периоде),
+                    похоже, это особенности сервиса ММВБ, выясняю.</p>
                 <br/>
                 <p>ps: данный сайт живет пока на самом простом тарифном плане хостинг-провайдера, поэтому просьба
                     проявлять терпение к возможным задержкам и "задумчивости" :)</p>
@@ -330,10 +334,10 @@
         });
 
         var n = d.getElementsByTagName("script")[0],
-                s = d.createElement("script"),
-                f = function () {
-                    n.parentNode.insertBefore(s, n);
-                };
+            s = d.createElement("script"),
+            f = function () {
+                n.parentNode.insertBefore(s, n);
+            };
         s.type = "text/javascript";
         s.async = true;
         s.src = "https://mc.yandex.ru/metrika/watch.js";
