@@ -507,5 +507,11 @@ app.getFirstDayOfMonth = function () {
 
 $(document).ready(
     // TODO: Load data on page load
-    app.loadData(app.getPreviousTradingDay(), app.initView)
+    function() {
+        $(".select-features-list").select2({
+            placeholder: ' Загрузка...',
+            data: app.featuresListRaw
+        });
+        app.loadData(app.getPreviousTradingDay(), app.initView);
+    }
 );
