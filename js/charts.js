@@ -11,12 +11,14 @@ var charts = {
                     label: 'Физические лица',
                     data: [Math.abs(long), Math.abs(short)],
                     backgroundColor: [
-                        "#FF6384",
-                        "#36A2EB"
+                        "#4deb5a",
+                        "#eb5342"
+
                     ],
                     hoverBackgroundColor: [
-                        "#FF6384",
-                        "#36A2EB"
+                        "#28eb24",
+                        "#eb2d22"
+
                     ]
                 }]
         }
