@@ -59,13 +59,13 @@ var charts = {
             {
                 label: 'Контракты юрлиц',
                 borderColor: "rgba(24,240,60,1)",
-                backgroundColor: "rgba(180,232,167,1)",
+                backgroundColor: "rgba(180,232,167,0.1)",
                 data: []
             },
             {
                 label: 'Контракты итого',
                 borderColor: "rgba(219,11,157,1)",
-                backgroundColor: "rgba(229,167,232,1)",
+                backgroundColor: "rgba(229,167,232,0.1)",
                 data: []
             }
         ],
