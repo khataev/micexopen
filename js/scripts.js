@@ -232,6 +232,7 @@ var app = {
         app.openPositionsDynamics = {};
         // Отрисовываем пустой график
         charts.ChartMan.drawOpenPositionsDynamicsChart();
+        charts.ChartMan.drawOpenPositionsDynamicsChart2();
 
         // Заполнение массива для синхронизации потоков
         app.workingPeriodSync = [];
