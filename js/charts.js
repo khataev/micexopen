@@ -41,12 +41,14 @@ var charts = {
         jurPositionCtx: $("#jurPositionChart"),
         currencyRatesCtx: $("#currencyRatesChart"),
         openPositionsDynamicsCtx: $("#openPositionsDynamicsChart"),
+        openPositionsDynamics2Ctx: $("#openPositionsDynamicsChart2"),
 
         // Ссылки на объекты графиков
         fizChart: null,
         jurChart: null,
         currencyRatesChart: null,
-        openPositionsDynamicsChart: null,
+        openPositionsDynamicsChart: null, // 1-я диаграмма динамики
+        openPositionsDynamics2Chart: null, // 2-я диаграма динамики
 
         // Изначальные данные для графика за период
         dynamicDatasets: [
@@ -69,6 +71,28 @@ var charts = {
                 data: []
             }
         ],
+
+        dynamicDatasets2: [
+            {
+                label: 'Количество физлиц',
+                borderColor: "rgba(28,133,133,1)",
+                backgroundColor: "rgba(75,235,230,0.1)",
+                data: []
+            },
+            {
+                label: 'Количество юрлиц',
+                borderColor: "rgba(0,209,35,1)",
+                backgroundColor: "rgba(180,232,167,0.1)",
+                data: []
+            },
+            {
+                label: 'Количество итого',
+                borderColor: "rgba(191,8,137,1)",
+                backgroundColor: "rgba(229,167,232,0.1)",
+                data: []
+            }
+        ],
+
 
         // Изначальные данные для графика курса доллара
         ratesDatasets: [
@@ -172,11 +196,18 @@ var charts = {
         // Функция отображения на графике динамики открытых позиций новой порции данных (открытые позиции за новый день)
         updatePeriodChartWithDataPortion: function (moment, openPositions) {
             // Рассчитываем данные
+            // КОНТРАКТЫ
             var fiz_long_perc = openPositions.position.fiz_long / (openPositions.position.fiz_long + openPositions.position.fiz_short) * 100;
             var jur_long_perc = openPositions.position.jur_long / (openPositions.position.jur_long + openPositions.position.jur_short) * 100;
             var total_long_perc = (openPositions.position.fiz_long + openPositions.position.jur_long) / (openPositions.position.fiz_long + openPositions.position.fiz_short + openPositions.position.jur_long + openPositions.position.jur_short) * 100;
 
+            // КЛИЕНТЫ
+            var fiz_long_cli = openPositions.clients.fiz_long / (openPositions.clients.fiz_long + openPositions.clients.fiz_short) * 100;
+            var jur_long_cli = openPositions.clients.jur_long / (openPositions.clients.jur_long + openPositions.clients.jur_short) * 100;
+            var total_long_cli = (openPositions.clients.fiz_long + openPositions.clients.jur_long) / (openPositions.clients.fiz_long + openPositions.clients.fiz_short + openPositions.clients.jur_long + openPositions.clients.jur_short) * 100;
+
             // Добавляем данные в соответствующие массивы
+            // КОНТРАКТЫ
             this.dynamicDatasets[0].data.push({
                 x: moment,
                 y: fiz_long_perc
@@ -192,16 +223,44 @@ var charts = {
                 y: total_long_perc
             });
 
+            // КЛИЕНТЫ
+            this.dynamicDatasets2[0].data.push({
+                x: moment,
+                y: fiz_long_cli
+            });
+
+            this.dynamicDatasets2[1].data.push({
+                x: moment,
+                y: jur_long_cli
+            });
+
+            this.dynamicDatasets2[2].data.push({
+                x: moment,
+                y: total_long_cli
+            });
+
             // Которые затем пересортировываем
+            // КОНТРАКТЫ
             this.dynamicDatasets[0].data = _.sortBy(this.dynamicDatasets[0].data, 'x');
             this.dynamicDatasets[1].data = _.sortBy(this.dynamicDatasets[1].data, 'x');
             this.dynamicDatasets[2].data = _.sortBy(this.dynamicDatasets[2].data, 'x');
+
+            // КЛИЕНТЫ
+            this.dynamicDatasets2[0].data = _.sortBy(this.dynamicDatasets2[0].data, 'x');
+            this.dynamicDatasets2[1].data = _.sortBy(this.dynamicDatasets2[1].data, 'x');
+            this.dynamicDatasets2[2].data = _.sortBy(this.dynamicDatasets2[2].data, 'x');
 
             // Обновляем график
             if (this.openPositionsDynamicsChart) {
                 this.openPositionsDynamicsChart.options.scales.xAxes[0].time.min = this.dynamicDatasets[0].data[0].x;
                 this.openPositionsDynamicsChart.options.scales.xAxes[0].time.max = this.dynamicDatasets[0].data[this.dynamicDatasets[0].data.length - 1].x;
                 this.openPositionsDynamicsChart.update();
+            }
+            // 2-й
+            if (this.openPositionsDynamicsChart2) {
+                this.openPositionsDynamicsChart2.options.scales.xAxes[0].time.min = this.dynamicDatasets2[0].data[0].x;
+                this.openPositionsDynamicsChart2.options.scales.xAxes[0].time.max = this.dynamicDatasets2[0].data[this.dynamicDatasets2[0].data.length - 1].x;
+                this.openPositionsDynamicsChart2.update();
             }
         },
 
@@ -281,7 +340,45 @@ var charts = {
                 options: {
                     title: {
                         display: true,
-                        text: 'Доля лонгов в общем количестве позиций, %'
+                        text: 'Доля лонгов в общем количестве КОНТРАКТОВ, %'
+                    },
+                    scales: {
+                        xAxes: [{
+                            type: 'time',
+                            time: {
+                                unit: 'week'
+                            }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            })
+
+        },
+
+        drawOpenPositionsDynamicsChart2: function () {
+            if (this.openPositionsDynamicsChart2)
+                this.openPositionsDynamicsChart2.destroy();
+
+            _.each(this.dynamicDatasets2, function (dataset) {
+                dataset.data = [];
+            });
+
+            this.dynamicDatasets2[0].data = [];
+
+            this.openPositionsDynamicsChart2 = new Chart(this.openPositionsDynamics2Ctx, {
+                type: 'line',
+                data: {
+                    datasets: this.dynamicDatasets2
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: 'Доля лонгов в общем количестве КЛИЕНТОВ, %'
                     },
                     scales: {
                         xAxes: [{
