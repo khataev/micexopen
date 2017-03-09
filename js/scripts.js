@@ -496,7 +496,9 @@ app.getPreviousTradingDay = function () {
         (moment().isSame('2016-11-07', 'day') ?
             moment().subtract(4, 'days') :
             (moment().isSame('2017-01-03','day') ? moment().subtract(4,'days') :
-                (moment().isSame('2017-02-24','day') ? moment().subtract(2,'days') : day))))
+                (moment().isSame('2017-02-24','day') ? moment().subtract(2,'days') : 
+                   (moment().isSame('2017-03-09','day') ? moment().subtract(2,'days') : day)
+                ))))
         // .hours(0).minutes(0).seconds(0)
         ;
 };
