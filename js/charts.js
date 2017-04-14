@@ -9,7 +9,7 @@ var charts = {
             datasets: [
                 {
                     label: 'Физические лица',
-                    data: [Math.abs(long), Math.abs(short)],
+                    data: [Math.abs(Math.round(long*100)), Math.abs(Math.round(short*100))],
                     backgroundColor: [
                         "#4deb5a",
                         "#eb5342"
@@ -156,20 +156,20 @@ var charts = {
                     this.jurChart.destroy();
 
                 var fiz_options = charts.pieOptions();
-                fiz_options.title.text = 'Физические лица';
+                fiz_options.title.text = 'Физические лица, %';
 
                 var jur_options = charts.pieOptions();
-                jur_options.title.text = 'Юридические лица';
+                jur_options.title.text = 'Юридические лица, %';
 
                 this.fizChart = new Chart(this.fizPositionCtx, {
                     type: 'pie',
-                    data: charts.getPieData(row_data.fiz_long, row_data.fiz_short),
+                    data: charts.getPieData(row_data.fiz_long/(row_data.fiz_long+row_data.fiz_short), row_data.fiz_short/(row_data.fiz_long+row_data.fiz_short)),
                     options: fiz_options
                 });
 
                 this.jurChart = new Chart(this.jurPositionCtx, {
                     type: 'pie',
-                    data: charts.getPieData(row_data.jur_long, row_data.jur_short),
+                    data: charts.getPieData(row_data.jur_long/(row_data.jur_long+row_data.jur_short), row_data.jur_short/(row_data.jur_long+row_data.jur_short)),
                     options: jur_options
                 });
             }
