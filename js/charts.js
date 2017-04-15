@@ -1,15 +1,17 @@
 var charts = {
     // Формирование данных для графика открытых позиций на дату
     getPieData: function (long, short) {
+        long_perc = Math.abs(Math.round(long*100));
+        short_perc = Math.abs(Math.round(short*100));
         return {
             labels: [
-                "Длинные позиции",
-                "Короткие позиции"
+                "Длинные позиции: " + long_perc + '%',
+                "Короткие позиции: " + short_perc + '%'
             ],
             datasets: [
                 {
                     label: 'Физические лица',
-                    data: [Math.abs(Math.round(long*100)), Math.abs(Math.round(short*100))],
+                    data: [long_perc, short_perc],
                     backgroundColor: [
                         "#4deb5a",
                         "#eb5342"
