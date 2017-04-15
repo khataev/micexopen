@@ -1,8 +1,10 @@
 var charts = {
     // Формирование данных для графика открытых позиций на дату
     getPieData: function (long, short) {
-        long_perc = Math.abs(Math.round(long*100));
-        short_perc = Math.abs(Math.round(short*100));
+        long = Math.abs(long);
+        short = Math.abs(short);
+        long_perc = Math.round(long/(long+short)*100);
+        short_perc = Math.round(short/(long+short)*100);
         return {
             labels: [
                 "Длинные позиции: " + long_perc + '%',
@@ -11,7 +13,7 @@ var charts = {
             datasets: [
                 {
                     label: 'Физические лица',
-                    data: [long_perc, short_perc],
+                    data: [Math.abs(long), Math.abs(short)],
                     backgroundColor: [
                         "#4deb5a",
                         "#eb5342"
@@ -165,13 +167,13 @@ var charts = {
 
                 this.fizChart = new Chart(this.fizPositionCtx, {
                     type: 'pie',
-                    data: charts.getPieData(row_data.fiz_long/(row_data.fiz_long+row_data.fiz_short), row_data.fiz_short/(row_data.fiz_long+row_data.fiz_short)),
+                    data: charts.getPieData(row_data.fiz_long, row_data.fiz_short),
                     options: fiz_options
                 });
 
                 this.jurChart = new Chart(this.jurPositionCtx, {
                     type: 'pie',
-                    data: charts.getPieData(row_data.jur_long/(row_data.jur_long+row_data.jur_short), row_data.jur_short/(row_data.jur_long+row_data.jur_short)),
+                    data: charts.getPieData(row_data.jur_long, row_data.jur_short),
                     options: jur_options
                 });
             }
