@@ -477,6 +477,41 @@ app.AppView = Backbone.View.extend({
 
 app.appView = new app.AppView();
 
+app.getForHoliday = function(mnt) {
+
+    if (mnt.isSame('2016-11-06', 'day')) {
+        return moment('2016-11-03');
+    }
+    if (mnt.isSame('2016-11-07', 'day')) {
+        return moment('2016-11-03');
+    }
+    if (mnt.isSame('2017-01-03', 'day')) {
+        return moment('2016-12-30');
+    }
+    if (mnt.isSame('2017-02-24', 'day')) {
+        return moment('2017-02-22');
+    }
+    if (mnt.isSame('2017-03-09', 'day')) {
+        return moment('2017-03-07');
+    }
+    if (mnt.isSame('2017-05-02', 'day')) {
+        return moment('2017-04-28');
+    }
+    if (mnt.isSame('2017-05-09', 'day')) {
+        return moment('2017-05-05');
+    }
+    if (mnt.isSame('2017-05-10', 'day')) {
+        return moment('2017-05-05');
+    }
+    if (mnt.isSame('2017-06-13', 'day')) {
+        return moment('2017-06-09');
+    }
+    if (mnt.isSame('2017-11-07', 'day')) {
+        return moment('2017-11-03');
+    }
+    return undefined;
+};
+
 app.getPreviousTradingDay = function () {
     var day;
     switch (moment().day()) {
@@ -491,17 +526,9 @@ app.getPreviousTradingDay = function () {
             break;
     }
 
-    // TODO: wipe out stub for 03.11. And get holidays list
-    return (moment().isSame('2016-11-06', 'day') ?
-        moment().subtract(3, 'days') :
-        (moment().isSame('2016-11-07', 'day') ?
-            moment().subtract(4, 'days') :
-            (moment().isSame('2017-01-03','day') ? moment().subtract(4,'days') :
-                (moment().isSame('2017-02-24','day') ? moment().subtract(2,'days') : 
-                   (moment().isSame('2017-03-09','day') ? moment().subtract(2,'days') : day)
-                ))))
-        // .hours(0).minutes(0).seconds(0)
-        ;
+    var forHoliday = app.getForHoliday(moment());
+
+    return forHoliday === undefined ? day : forHoliday;
 };
 
 app.getFirstDayOfMonth = function () {
