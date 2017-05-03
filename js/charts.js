@@ -200,18 +200,18 @@ var charts = {
         // Функция отображения на графике динамики открытых позиций новой порции данных (открытые позиции за новый день)
         updatePeriodChartWithDataPortion: function (moment, openPositions) {
             // Рассчитываем данные
-            // КОНТРАКТЫ
+            // ОТНОСИТЕЛЬНЫЕ КОНТРАКТЫ
             var fiz_long_perc = openPositions.position.fiz_long / (openPositions.position.fiz_long + openPositions.position.fiz_short) * 100;
             var jur_long_perc = openPositions.position.jur_long / (openPositions.position.jur_long + openPositions.position.jur_short) * 100;
             var total_long_perc = (openPositions.position.fiz_long + openPositions.position.jur_long) / (openPositions.position.fiz_long + openPositions.position.fiz_short + openPositions.position.jur_long + openPositions.position.jur_short) * 100;
 
-            // КЛИЕНТЫ
-            var fiz_long_cli = openPositions.clients.fiz_long / (openPositions.clients.fiz_long + openPositions.clients.fiz_short) * 100;
-            var jur_long_cli = openPositions.clients.jur_long / (openPositions.clients.jur_long + openPositions.clients.jur_short) * 100;
-            var total_long_cli = (openPositions.clients.fiz_long + openPositions.clients.jur_long) / (openPositions.clients.fiz_long + openPositions.clients.fiz_short + openPositions.clients.jur_long + openPositions.clients.jur_short) * 100;
+            // АБСОЛЮТНЫЕ ЛОНГОВЫЕ КОНТРАКТЫ
+            var fiz_long = openPositions.clients.fiz_long;
+            var jur_long = openPositions.clients.jur_long;
+            var total_long = openPositions.clients.fiz_long + openPositions.clients.jur_long;
 
             // Добавляем данные в соответствующие массивы
-            // КОНТРАКТЫ
+            // ОТНОСИТЕЛЬНЫЕ КОНТРАКТЫ
             this.dynamicDatasets[0].data.push({
                 x: moment,
                 y: fiz_long_perc
@@ -227,29 +227,29 @@ var charts = {
                 y: total_long_perc
             });
 
-            // КЛИЕНТЫ
+            // АБСОЛЮТНЫЕ КОНТРАКТЫ
             this.dynamicDatasets2[0].data.push({
                 x: moment,
-                y: fiz_long_cli
+                y: fiz_long
             });
 
             this.dynamicDatasets2[1].data.push({
                 x: moment,
-                y: jur_long_cli
+                y: jur_long
             });
 
             this.dynamicDatasets2[2].data.push({
                 x: moment,
-                y: total_long_cli
+                y: total_long
             });
 
             // Которые затем пересортировываем
-            // КОНТРАКТЫ
+            // ОТНОСИТЕЛЬНЫЕ КОНТРАКТЫ
             this.dynamicDatasets[0].data = _.sortBy(this.dynamicDatasets[0].data, 'x');
             this.dynamicDatasets[1].data = _.sortBy(this.dynamicDatasets[1].data, 'x');
             this.dynamicDatasets[2].data = _.sortBy(this.dynamicDatasets[2].data, 'x');
 
-            // КЛИЕНТЫ
+            // АБСОЛЮТНЫЕ КОНТРАКТЫ
             this.dynamicDatasets2[0].data = _.sortBy(this.dynamicDatasets2[0].data, 'x');
             this.dynamicDatasets2[1].data = _.sortBy(this.dynamicDatasets2[1].data, 'x');
             this.dynamicDatasets2[2].data = _.sortBy(this.dynamicDatasets2[2].data, 'x');
@@ -382,7 +382,7 @@ var charts = {
                 options: {
                     title: {
                         display: true,
-                        text: 'Доля лонгов в общем количестве КЛИЕНТОВ, %'
+                        text: 'Количество лонговых контрактов, шт.'
                     },
                     scales: {
                         xAxes: [{
