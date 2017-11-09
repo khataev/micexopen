@@ -37,3 +37,11 @@
 .error-area {
     color: red;
 }
+
+ul.nobullet {
+    list-style-type: none;
+}
+
+ul.nobullet > li {
+    line-height: 200%;
+}
